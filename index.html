@@ -125,7 +125,7 @@ ul.rules{padding-left:20px;margin:6px 0}ul.rules li{margin:6px 0}
 'use strict';
 /* ======================= Utilitaires ======================= */
 const KEY='ajlec_treso_v1';
-const VERSION='1.0.1';
+const VERSION='1.0.2';
 const POCHES=[{id:'om',nom:'Orange Money'},{id:'courant',nom:'Compte courant'},{id:'epargne',nom:'Compte épargne'}];
 const pNom=id=>(POCHES.find(p=>p.id===id)||{nom:id||''}).nom;
 const p2=n=>String(n).padStart(2,'0');
@@ -163,7 +163,7 @@ function demo(){
  add('engagement',{date:'2026-11-10',libelle:'Dépense à prévoir (exemple)',montant:200000});
  return s;
 }
-function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);if(o&&o.journal&&o.params)return o}}catch(e){}return null}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);if(donneesValides(o))return o}}catch(e){}return null}
 let S=load();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Sauvegarde locale impossible : exportez vos données')}}
 const defaultAsOf=()=>{const t=todayISO();if(!S)return t;return t>S.params.dateEtat?t:S.params.dateEtat};
@@ -334,7 +334,7 @@ function banner(){
  return h}
 function renderWelcome(){
  $('#nav').innerHTML='';
- $('#app').innerHTML='<div class="card" style="margin-top:20px"><h1>Trésorerie AJLEC</h1><p>Bienvenue. Cet appareil ne contient encore aucune donnée.</p><div class="btns"><button class="btn pri" data-act="importJSON">Importer le fichier de données reçu</button><button class="btn" data-act="startDemo">Essayer avec des données fictives</button></div><p class="mu">Le fichier de données (.json) vous est envoyé séparément et en privé. Les données restent sur cet appareil : pensez à les sauvegarder régulièrement.</p><p class="mu">Version '+VERSION+'</p></div>'}
+ $('#app').innerHTML='<div class="card" style="margin-top:20px"><h1>Trésorerie AJLEC</h1><p>Bienvenue. Cet appareil ne contient encore aucune donnée.</p><div class="btns"><button class="btn pri" data-act="importJSON">Importer le fichier de données reçu</button><button class="btn" data-act="pasteOpen">Coller le texte des données</button><button class="btn" data-act="startDemo">Essayer avec des données fictives</button></div><p class="mu">Les données (fichier .json ou texte) vous sont envoyées séparément et en privé. Les données restent sur cet appareil : pensez à les sauvegarder régulièrement.</p><p class="mu">Version '+VERSION+'</p></div>'}
 function render(){
  if(!S){renderWelcome();return}
  const v={etat:vEtat,membres:vMembres,credits:vCredits,journal:vJournal,plus:vPlus}[U.tab];
@@ -490,7 +490,7 @@ function vPlus(){
  if(p==='test')return back+'<header class="top"><h1>Fiche de test</h1></header>'+vTest();
  if(p==='params')return back+'<header class="top"><h1>Paramètres</h1></header>'+vParams();
  if(p==='sauvegarde'){
-  return back+'<header class="top"><h1>Sauvegarde</h1></header><div class="card"><p>Dernière sauvegarde : <b>'+(S.lastBackup?new Date(S.lastBackup).toLocaleString('fr-FR'):'jamais')+'</b></p><p class="mu">Les données sont stockées sur cet appareil. Exportez-les régulièrement (vers Fichiers, iCloud ou WhatsApp).</p><div class="btns"><button class="btn pri" data-act="exportJSON">Sauvegarder (envoyer ou enregistrer)</button><button class="btn" data-act="importJSON">Restaurer une sauvegarde</button><button class="btn danger" data-act="wipe">Effacer les données de cet appareil</button></div><p class="mu" style="margin-top:10px">Version '+VERSION+'</p></div>'}
+  return back+'<header class="top"><h1>Sauvegarde</h1></header><div class="card"><p>Dernière sauvegarde : <b>'+(S.lastBackup?new Date(S.lastBackup).toLocaleString('fr-FR'):'jamais')+'</b></p><p class="mu">Les données sont stockées sur cet appareil. Exportez-les régulièrement (vers Fichiers, iCloud ou WhatsApp).</p><div class="btns"><button class="btn pri" data-act="exportJSON">Sauvegarder (envoyer ou enregistrer)</button><button class="btn" data-act="importJSON">Restaurer une sauvegarde</button><button class="btn" data-act="pasteOpen">Restaurer en collant le texte</button><button class="btn danger" data-act="wipe">Effacer les données de cet appareil</button></div><p class="mu" style="margin-top:10px">Version '+VERSION+'</p></div>'}
  if(p==='regles')return back+'<header class="top"><h1>Règles appliquées</h1></header><div class="card">'+RULES+'</div>';
  const it=(k,ic,t,s)=>'<button class="btn" data-act="plus" data-p="'+k+'" style="text-align:left;min-height:64px"><span style="font-size:20px">'+ic+'</span> <b>'+t+'</b><br><small>'+s+'</small></button>';
  return '<header class="top"><h1>Plus</h1></header><div class="menu">'+it('sanctions','⚖️','Sanctions','amendes, règlements, annulations')+it('depenses','🧾','Dépenses','à prévoir, réglées, recettes, transferts')+it('collation','🍽️','Collation','AG physiques, dettes, retenues')+it('rapprochement','🏛️','Rapprochement','relevés bancaires, frais')+it('params','⚙️','Paramètres','cotisation, taux, barème, membres')+it('sauvegarde','💾','Sauvegarde','export / import')+it('regles','📖','Règles appliquées','à valider avec l’AG')+it('test','✅','Fiche de test','pour le trésorier : tester, puis donner son avis')+'</div>'}
@@ -526,7 +526,7 @@ const TEST=[
   ['a9','Fermer puis rouvrir l’app ; l’essayer en mode avion'],
   ['a10','Ouvrir l’aide « ? » (en haut de chaque écran) et revoir la visite guidée']]],
  ['B','Vérification sur les vraies données',[
-  ['b1','Quitter la démonstration et importer le fichier de données reçu'],
+  ['b1','Quitter la démonstration et importer les données reçues (fichier, ou texte collé)'],
   ['b2','Comparer les chiffres à l’état habituel (solde net, crédits, cotisations)'],
   ['b3','Compléter les cartes « À compléter » (poches d’ouverture, poche et date des mouvements)'],
   ['b4','Comparer le solde de chaque poche avec la banque et Orange Money'],
@@ -575,11 +575,22 @@ const HELP=[
  ['depense','Dépenses et dépenses à prévoir',['Plus → Dépenses.','« Dépense à prévoir » alimente la liste des engagements, qui réduit le « solde net après engagements ».','Quand c’est payé, touchez « Payer » sur la ligne : la dépense est enregistrée dans la poche choisie.','Cochez « Visée » une fois le visa du président ou du commissaire aux comptes obtenu.']],
  ['releve','Frais bancaires : saisir un relevé',['Plus → Rapprochement → Saisir un relevé.','Indiquez la poche, la date et le solde réel lu sur le relevé (ou dans Orange Money).','L’app affiche l’écart avec son propre solde ; « Enregistrer l’écart » le transforme en frais (écart négatif) ou en intérêts (écart positif).']],
  ['partage','Envoyer l’état aux membres',['Écran État → « Message WhatsApp » → « Copier le message », puis collez-le dans le groupe.','« Fichier de situation (lecture seule) » produit une page avec l’état et la fiche de chaque membre, à envoyer par WhatsApp.']],
- ['sauvegarde','Sauvegarder et restaurer',['Plus → Sauvegarde → « Sauvegarder » : envoyez le fichier à vous-même (WhatsApp, Fichiers, iCloud).','Faites-le chaque semaine : les données sont uniquement sur ce téléphone.','« Restaurer une sauvegarde » remplace toutes les données par celles du fichier choisi.']]];
+ ['sauvegarde','Sauvegarder et restaurer',['Plus → Sauvegarde → « Sauvegarder » : envoyez le fichier à vous-même (WhatsApp, Fichiers, iCloud).','Faites-le chaque semaine : les données sont uniquement sur ce téléphone.','« Restaurer une sauvegarde » remplace toutes les données par celles du fichier choisi. « Restaurer en collant le texte » fait de même avec un texte copié depuis un message.']]];
 function openHelp(){
  const cur={etat:'lire',membres:'cotisation',credits:'remb',journal:'corriger',plus:'sauvegarde'}[U.tab];
  $('#sheet').innerHTML='<div class="sheetbox" role="dialog" aria-modal="true"><div class="sheethead"><h2>Aide</h2><button class="btn" data-act="closeSheet">Fermer</button></div><div class="sheetbody"><div class="btns" style="margin-top:0"><button class="btn pri" data-act="tour" data-i="0">Revoir la visite guidée</button></div>'+HELP.map(h=>'<details'+(h[0]===cur?' open':'')+'><summary>'+h[1]+'</summary><ol class="rules">'+h[2].map(s=>'<li>'+s+'</li>').join('')+'</ol></details>').join('')+'<p class="mu">Version '+VERSION+'</p></div></div>';
  $('#sheet').classList.add('open');SH=null}
+
+/* ======================= Import par texte collé ======================= */
+function openPaste(){
+ $('#sheet').innerHTML='<div class="sheetbox" role="dialog" aria-modal="true"><div class="sheethead"><h2>Coller les données</h2><button class="btn" data-act="closeSheet">Fermer</button></div><div class="sheetbody"><p>Dans WhatsApp, touchez longuement le message qui contient les données, choisissez <b>Copier</b>, puis collez-le ci-dessous.</p><div class="f"><label for="pastebox">Texte des données</label><textarea id="pastebox" rows="7" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Collez ici le texte copié"></textarea></div><div id="pasteerr" class="err"></div></div><div class="sheetfoot"><button class="btn" data-act="closeSheet">Annuler</button><button class="btn pri" data-act="pasteGo">Importer</button></div></div>';
+ $('#sheet').classList.add('open');SH=null;setTimeout(()=>{const b=$('#pastebox');if(b)b.focus()},120)}
+function pasteGo(){
+ const b=$('#pastebox');if(!b)return;
+ if(!b.value.trim()){$('#pasteerr').textContent='Collez d’abord le texte copié.';return}
+ const r=importText(b.value);
+ if(r==='ok')closeSheet();
+ else if(r==='invalide')$('#pasteerr').textContent='Texte non reconnu : copiez tout le message, du premier « { » jusqu’au dernier « } ».'}
 
 /* ======================= Formulaires ======================= */
 const FLD={
@@ -788,10 +799,17 @@ const ACT={
  sendTest:()=>sendTest(),
  help:()=>openHelp(),
  tour:d=>openTour(+d.i),
- tourEnd:()=>closeSheet()};
+ tourEnd:()=>closeSheet(),
+ pasteOpen:()=>openPaste(),
+ pasteGo:()=>pasteGo()};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;if(e.target.closest('#sheet')&&b.dataset.act==='closeSheet'||true){const a=ACT[b.dataset.act];if(a)a(b.dataset,b)}});
 $('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet()});
-function importText(txt){try{const o=JSON.parse(txt);if(!o.journal||!o.params)throw 0;if(!S||confirm('Remplacer toutes les données actuelles par ce fichier ?')){S=o;save();U.asOf=defaultAsOf();U.tab='etat';U.membre=null;U.credit=null;U.plus=null;render();toast('Données importées')}}catch(x){toast('Fichier invalide')}}
+function donneesValides(o){return !!(o&&typeof o==='object'&&Array.isArray(o.journal)&&Array.isArray(o.membres)&&Array.isArray(o.bareme)&&o.params&&typeof o.params==='object'&&o.ouverture&&typeof o.ouverture.date==='string'&&['om','courant','epargne'].every(k=>typeof o.ouverture[k]==='number'))}
+function extractJSON(t){t=String(t||'').trim();const a=t.indexOf('{'),b=t.lastIndexOf('}');return a>=0&&b>a?t.slice(a,b+1):t}
+function importText(txt){
+ let o;try{o=JSON.parse(extractJSON(txt));if(!donneesValides(o))throw 0}catch(x){toast('Données invalides : vérifiez le fichier ou le texte copié');return 'invalide'}
+ if(S&&!confirm('Remplacer toutes les données actuelles par ces données ?'))return 'annule';
+ S=o;save();U.asOf=defaultAsOf();U.tab='etat';U.membre=null;U.credit=null;U.plus=null;render();toast('Données importées');return 'ok'}
 $('#imp').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{importText(r.result);e.target.value=''};r.readAsText(f)});
 document.addEventListener('change',e=>{
  const t=e.target;

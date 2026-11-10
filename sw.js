@@ -1,9 +1,9 @@
-/* Service worker — Trésorerie AJLEC (v1.0.1)
+/* Service worker — Trésorerie AJLEC (v1.0.2)
    Réseau d'abord : les mises à jour arrivent dès qu'il y a du réseau.
    La copie en cache ne sert qu'en secours (hors ligne) et n'est JAMAIS remplacée par autre chose
    que la vraie page de l'application (pas d'écran de connexion, pas de page d'erreur).
    Ce fichier ne touche jamais aux données : elles restent dans le stockage de l'application. */
-const V = 'ajlec-treso-v1.0.1';
+const V = 'ajlec-treso-v1.0.2';
 const FICHIERS = ['index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 const MARQUEUR = 'name="ajlec-app"';
 
