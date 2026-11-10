@@ -125,7 +125,9 @@ ul.rules{padding-left:20px;margin:6px 0}ul.rules li{margin:6px 0}
 'use strict';
 /* ======================= Utilitaires ======================= */
 const KEY='ajlec_treso_v1';
-const VERSION='1.0.2';
+const VERSION='1.0.3';
+const STASH='ajlec_treso_v1_reel';
+function hasStash(){try{return !!localStorage.getItem(STASH)}catch(e){return false}}
 const POCHES=[{id:'om',nom:'Orange Money'},{id:'courant',nom:'Compte courant'},{id:'epargne',nom:'Compte épargne'}];
 const pNom=id=>(POCHES.find(p=>p.id===id)||{nom:id||''}).nom;
 const p2=n=>String(n).padStart(2,'0');
@@ -330,11 +332,11 @@ const NAV=[['etat','État'],['membres','Membres'],['saisie','Saisie'],['credits'
 function renderNav(){$('#nav').innerHTML=NAV.map(n=>n[0]==='saisie'?'<button class="add" data-act="menu" aria-label="Nouvelle saisie"><span class="pl">＋</span>Saisie</button>':'<button data-act="tab" data-tab="'+n[0]+'" class="'+(U.tab===n[0]?'on':'')+'" aria-label="'+n[1]+'"><svg viewBox="0 0 24 24">'+IC[n[0]]+'</svg>'+n[1]+'</button>').join('')}
 function banner(){
  let h='';
- if(S.demo)h+='<div class="ban"><b>DONNÉES FICTIVES D’EXEMPLE</b> — pour essayer l’application sans risque. <button class="btn sm" data-act="quitDemo">Quitter la démonstration</button></div>';
+ if(S.demo)h+='<div class="ban"><b>DONNÉES FICTIVES D’EXEMPLE</b> — pour essayer l’application sans risque.'+(hasStash()?' Vos vraies données sont mises de côté.':'')+' <button class="btn sm" data-act="quitDemo">Quitter la démonstration</button></div>';
  return h}
 function renderWelcome(){
  $('#nav').innerHTML='';
- $('#app').innerHTML='<div class="card" style="margin-top:20px"><h1>Trésorerie AJLEC</h1><p>Bienvenue. Cet appareil ne contient encore aucune donnée.</p><div class="btns"><button class="btn pri" data-act="importJSON">Importer le fichier de données reçu</button><button class="btn" data-act="pasteOpen">Coller le texte des données</button><button class="btn" data-act="startDemo">Essayer avec des données fictives</button></div><p class="mu">Les données (fichier .json ou texte) vous sont envoyées séparément et en privé. Les données restent sur cet appareil : pensez à les sauvegarder régulièrement.</p><p class="mu">Version '+VERSION+'</p></div>'}
+ $('#app').innerHTML='<div class="card" style="margin-top:20px"><h1>Trésorerie AJLEC</h1><p>Bienvenue. Cet appareil ne contient encore aucune donnée.</p><div class="btns"><button class="btn pri" data-act="pasteOpen">Coller le texte des données</button></div><p class="mu">Les données vous sont envoyées séparément et en privé, dans un long message de texte : copiez-le, puis collez-le ici. Elles restent sur cet appareil : pensez à les sauvegarder régulièrement.</p><p class="mu">Version '+VERSION+'</p></div>'}
 function render(){
  if(!S){renderWelcome();return}
  const v={etat:vEtat,membres:vMembres,credits:vCredits,journal:vJournal,plus:vPlus}[U.tab];
@@ -490,7 +492,7 @@ function vPlus(){
  if(p==='test')return back+'<header class="top"><h1>Fiche de test</h1></header>'+vTest();
  if(p==='params')return back+'<header class="top"><h1>Paramètres</h1></header>'+vParams();
  if(p==='sauvegarde'){
-  return back+'<header class="top"><h1>Sauvegarde</h1></header><div class="card"><p>Dernière sauvegarde : <b>'+(S.lastBackup?new Date(S.lastBackup).toLocaleString('fr-FR'):'jamais')+'</b></p><p class="mu">Les données sont stockées sur cet appareil. Exportez-les régulièrement (vers Fichiers, iCloud ou WhatsApp).</p><div class="btns"><button class="btn pri" data-act="exportJSON">Sauvegarder (envoyer ou enregistrer)</button><button class="btn" data-act="importJSON">Restaurer une sauvegarde</button><button class="btn" data-act="pasteOpen">Restaurer en collant le texte</button><button class="btn danger" data-act="wipe">Effacer les données de cet appareil</button></div><p class="mu" style="margin-top:10px">Version '+VERSION+'</p></div>'}
+  return back+'<header class="top"><h1>Sauvegarde</h1></header><div class="card"><p>Dernière sauvegarde : <b>'+(S.lastBackup?new Date(S.lastBackup).toLocaleString('fr-FR'):'jamais')+'</b></p><p class="mu">Les données sont stockées sur cet appareil. Exportez-les régulièrement (vers Fichiers, iCloud ou WhatsApp).</p><div class="btns"><button class="btn pri" data-act="exportJSON">Sauvegarder (envoyer ou enregistrer)</button><button class="btn" data-act="pasteOpen">Restaurer en collant le texte</button><button class="btn danger" data-act="wipe">Effacer les données de cet appareil</button></div><details style="margin-top:12px"><summary>Options avancées</summary><div class="btns"><button class="btn" data-act="importJSON">Restaurer une sauvegarde (fichier)</button><button class="btn" data-act="demoFromSave">Essayer avec des données fictives</button></div><p class="mu">Les données fictives servent à s’entraîner sans risque : vos vraies données sont mises de côté et reviennent avec « Quitter la démonstration ».</p></details><p class="mu" style="margin-top:10px">Version '+VERSION+'</p></div>'}
  if(p==='regles')return back+'<header class="top"><h1>Règles appliquées</h1></header><div class="card">'+RULES+'</div>';
  const it=(k,ic,t,s)=>'<button class="btn" data-act="plus" data-p="'+k+'" style="text-align:left;min-height:64px"><span style="font-size:20px">'+ic+'</span> <b>'+t+'</b><br><small>'+s+'</small></button>';
  return '<header class="top"><h1>Plus</h1></header><div class="menu">'+it('sanctions','⚖️','Sanctions','amendes, règlements, annulations')+it('depenses','🧾','Dépenses','à prévoir, réglées, recettes, transferts')+it('collation','🍽️','Collation','AG physiques, dettes, retenues')+it('rapprochement','🏛️','Rapprochement','relevés bancaires, frais')+it('params','⚙️','Paramètres','cotisation, taux, barème, membres')+it('sauvegarde','💾','Sauvegarde','export / import')+it('regles','📖','Règles appliquées','à valider avec l’AG')+it('test','✅','Fiche de test','pour le trésorier : tester, puis donner son avis')+'</div>'}
@@ -514,25 +516,25 @@ async function shareText(text){
  try{await navigator.clipboard.writeText(text);return 'copy'}catch(e){}
  return 'none'}
 const TEST=[
- ['A','Essai libre sur données fictives (on peut tout essayer)',[
-  ['a1','Installer l’app sur l’écran d’accueil (Partager → Sur l’écran d’accueil), puis l’ouvrir'],
-  ['a2','Saisir une cotisation, un remboursement ventilé (capital / intérêts) et un nouveau crédit'],
-  ['a3','Changer la date « au » (écran État) et vérifier l’intérêt ajouté à la date butoir'],
-  ['a4','Corriger puis annuler une écriture (Journal)'],
-  ['a5','Saisir un relevé (Plus → Rapprochement) et enregistrer l’écart'],
-  ['a6','Générer le message WhatsApp et le fichier de situation'],
-  ['a7','Faire une sauvegarde, puis la restaurer'],
-  ['a8','Tourner le téléphone : portrait et paysage restent lisibles'],
-  ['a9','Fermer puis rouvrir l’app ; l’essayer en mode avion'],
-  ['a10','Ouvrir l’aide « ? » (en haut de chaque écran) et revoir la visite guidée']]],
- ['B','Vérification sur les vraies données',[
-  ['b1','Quitter la démonstration et importer les données reçues (fichier, ou texte collé)'],
+ ['A','Vérification sur les vraies données',[
+  ['b1','Coller le texte des données reçu (écran d’accueil) : elles s’affichent'],
   ['b2','Comparer les chiffres à l’état habituel (solde net, crédits, cotisations)'],
   ['b3','Compléter les cartes « À compléter » (poches d’ouverture, poche et date des mouvements)'],
   ['b4','Comparer le solde de chaque poche avec la banque et Orange Money'],
   ['b5','Saisir les premiers mouvements réels'],
   ['b6','Générer le message WhatsApp réel et le comparer à l’état habituel'],
-  ['b7','Envoyer une sauvegarde au responsable']]]];
+  ['b7','Envoyer une sauvegarde au responsable']]],
+ ['B','Essai libre sur données fictives (Plus → Sauvegarde → Options avancées → Essayer avec des données fictives ; « Quitter la démonstration » remet vos vraies données)',[
+  ['a1','Saisir une cotisation, un remboursement ventilé (capital / intérêts) et un nouveau crédit'],
+  ['a2','Changer la date « au » (écran État) et vérifier l’intérêt ajouté à la date butoir'],
+  ['a3','Corriger puis annuler une écriture (Journal)'],
+  ['a4','Saisir un relevé (Plus → Rapprochement) et enregistrer l’écart'],
+  ['a5','Générer le message WhatsApp et le fichier de situation'],
+  ['a6','Faire une sauvegarde, puis la restaurer'],
+  ['a7','Tourner le téléphone : portrait et paysage restent lisibles'],
+  ['a8','Fermer puis rouvrir l’app ; l’essayer en mode avion'],
+  ['a9','Ouvrir l’aide « ? » (en haut de chaque écran) et revoir la visite guidée'],
+  ['a10','Installer l’app sur l’écran d’accueil (Partager → Sur l’écran d’accueil)']]]];
 function vTest(){
  const T=S.test||(S.test={items:{},note:'',avis:''});
  const tot=TEST.reduce((s,g)=>s+g[2].length,0),ok=TEST.reduce((s,g)=>s+g[2].filter(i=>T.items[i[0]]).length,0);
@@ -575,7 +577,7 @@ const HELP=[
  ['depense','Dépenses et dépenses à prévoir',['Plus → Dépenses.','« Dépense à prévoir » alimente la liste des engagements, qui réduit le « solde net après engagements ».','Quand c’est payé, touchez « Payer » sur la ligne : la dépense est enregistrée dans la poche choisie.','Cochez « Visée » une fois le visa du président ou du commissaire aux comptes obtenu.']],
  ['releve','Frais bancaires : saisir un relevé',['Plus → Rapprochement → Saisir un relevé.','Indiquez la poche, la date et le solde réel lu sur le relevé (ou dans Orange Money).','L’app affiche l’écart avec son propre solde ; « Enregistrer l’écart » le transforme en frais (écart négatif) ou en intérêts (écart positif).']],
  ['partage','Envoyer l’état aux membres',['Écran État → « Message WhatsApp » → « Copier le message », puis collez-le dans le groupe.','« Fichier de situation (lecture seule) » produit une page avec l’état et la fiche de chaque membre, à envoyer par WhatsApp.']],
- ['sauvegarde','Sauvegarder et restaurer',['Plus → Sauvegarde → « Sauvegarder » : envoyez le fichier à vous-même (WhatsApp, Fichiers, iCloud).','Faites-le chaque semaine : les données sont uniquement sur ce téléphone.','« Restaurer une sauvegarde » remplace toutes les données par celles du fichier choisi. « Restaurer en collant le texte » fait de même avec un texte copié depuis un message.']]];
+ ['sauvegarde','Sauvegarder et restaurer',['Plus → Sauvegarde → « Sauvegarder » : envoyez le fichier à vous-même (WhatsApp, Fichiers, iCloud).','Faites-le chaque semaine : les données sont uniquement sur ce téléphone.','« Restaurer en collant le texte » remplace toutes les données par celles d’un texte copié depuis un message. Dans « Options avancées » : restaurer un fichier, ou s’entraîner sur des données fictives (vos vraies données sont mises de côté).']]];
 function openHelp(){
  const cur={etat:'lire',membres:'cotisation',credits:'remb',journal:'corriger',plus:'sauvegarde'}[U.tab];
  $('#sheet').innerHTML='<div class="sheetbox" role="dialog" aria-modal="true"><div class="sheethead"><h2>Aide</h2><button class="btn" data-act="closeSheet">Fermer</button></div><div class="sheetbody"><div class="btns" style="margin-top:0"><button class="btn pri" data-act="tour" data-i="0">Revoir la visite guidée</button></div>'+HELP.map(h=>'<details'+(h[0]===cur?' open':'')+'><summary>'+h[1]+'</summary><ol class="rules">'+h[2].map(s=>'<li>'+s+'</li>').join('')+'</ol></details>').join('')+'<p class="mu">Version '+VERSION+'</p></div></div>';
@@ -792,9 +794,19 @@ const ACT={
  situation:async()=>{const r=await deliver('Situation-AJLEC-'+U.asOf+'.html',situationHTML(U.asOf),'text/html');if(r!=='abort')toast('Fichier de situation prêt')},
  exportJSON:async()=>{const r=await deliver('Tresorerie-AJLEC-sauvegarde-'+todayISO()+'.json',JSON.stringify(S,null,1),'application/json');if(r!=='abort'){S.lastBackup=Date.now();save();render();toast('Sauvegarde prête')}},
  importJSON:()=>$('#imp').click(),
- wipe:()=>{if(confirm('Effacer TOUTES les données de cet appareil ? Faites d’abord une sauvegarde.')&&confirm('Dernière confirmation : cette action est définitive.')){S=null;try{localStorage.removeItem(KEY)}catch(e){}render()}},
+ wipe:()=>{if(confirm('Effacer TOUTES les données de cet appareil ? Faites d’abord une sauvegarde.')&&confirm('Dernière confirmation : cette action est définitive.')){S=null;try{localStorage.removeItem(KEY);localStorage.removeItem(STASH)}catch(e){}render()}},
  startDemo:()=>{S=demo();save();U.asOf=defaultAsOf();U.tab='etat';render()},
- quitDemo:()=>{if(confirm('Quitter la démonstration et effacer ces données fictives ?')){S=null;try{localStorage.removeItem(KEY)}catch(e){}render()}},
+ demoFromSave:()=>{
+  if(S.demo){toast('Vous êtes déjà dans la démonstration');return}
+  if(!confirm('Passer sur des données fictives pour vous entraîner ? Vos vraies données sont mises de côté et reviennent quand vous touchez « Quitter la démonstration ».'))return;
+  try{localStorage.setItem(STASH,JSON.stringify(S))}catch(e){toast('Mise de côté impossible : démonstration annulée');return}
+  S=demo();save();U.asOf=defaultAsOf();U.tab='etat';U.membre=null;U.credit=null;U.plus=null;render()},
+ quitDemo:()=>{
+  let reel=null;try{const r=localStorage.getItem(STASH);if(r){const o=JSON.parse(r);if(donneesValides(o))reel=o}}catch(e){}
+  if(!confirm(reel?'Quitter la démonstration ? Vos vraies données reviennent.':'Quitter la démonstration et effacer ces données fictives ?'))return;
+  try{localStorage.removeItem(STASH)}catch(e){}
+  if(reel){S=reel;save();U.asOf=defaultAsOf();U.tab='etat';U.membre=null;U.credit=null;U.plus=null;render();toast('Vos données sont revenues')}
+  else{S=null;try{localStorage.removeItem(KEY)}catch(e){}render()}},
  todoDone:d=>{const t=(S.todo||[]).find(x=>x.id===d.id);if(t){t.done=true;save();render()}},
  sendTest:()=>sendTest(),
  help:()=>openHelp(),
@@ -809,7 +821,7 @@ function extractJSON(t){t=String(t||'').trim();const a=t.indexOf('{'),b=t.lastIn
 function importText(txt){
  let o;try{o=JSON.parse(extractJSON(txt));if(!donneesValides(o))throw 0}catch(x){toast('Données invalides : vérifiez le fichier ou le texte copié');return 'invalide'}
  if(S&&!confirm('Remplacer toutes les données actuelles par ces données ?'))return 'annule';
- S=o;save();U.asOf=defaultAsOf();U.tab='etat';U.membre=null;U.credit=null;U.plus=null;render();toast('Données importées');return 'ok'}
+ S=o;save();try{localStorage.removeItem(STASH)}catch(e){}U.asOf=defaultAsOf();U.tab='etat';U.membre=null;U.credit=null;U.plus=null;render();toast('Données importées');return 'ok'}
 $('#imp').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{importText(r.result);e.target.value=''};r.readAsText(f)});
 document.addEventListener('change',e=>{
  const t=e.target;
