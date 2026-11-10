@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f6f5c">
+<meta name="robots" content="noindex,nofollow">
+<meta name="ajlec-app" content="1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Trésorerie">
+<title>Trésorerie AJLEC</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--tx:#14213d;--mu:#5b6475;--pr:#1f6f5c;--pr2:#e3f1ec;--bd:#dfe3ea;--ok:#067647;--okbg:#e3f5ea;--wa:#b54708;--wabg:#fdf0dd;--er:#b42318;--erbg:#fde8e6;--om:#d9730d;--cc:#2a62c9;--ce:#1f8a5b;--sh:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);--r:14px;--nav:64px}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1620;--card:#162231;--tx:#e8edf5;--mu:#9aa7bb;--pr:#4cc3a0;--pr2:#17332d;--bd:#26364a;--ok:#5fd493;--okbg:#12301f;--wa:#f0a45a;--wabg:#33240f;--er:#ff8a7d;--erbg:#3a1a17;--om:#f0944a;--cc:#6d9bf0;--ce:#52c98f;--sh:none}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+h1{font-size:22px;margin:0}h2{font-size:18px;margin:0}h3{font-size:16px;margin:18px 0 8px}
+p{margin:6px 0}
+small,.mu{color:var(--mu);font-size:13px}
+#app{max-width:1100px;margin:0 auto;padding:12px 16px calc(var(--nav) + 28px + env(safe-area-inset-bottom))}
+nav#nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--bd);z-index:20;padding-bottom:env(safe-area-inset-bottom)}
+nav#nav button{flex:1;border:0;background:none;color:var(--mu);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:var(--nav);cursor:pointer}
+nav#nav button.on{color:var(--pr);font-weight:700}
+nav#nav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav#nav button.add{color:var(--pr);font-weight:700}
+nav#nav button.add .pl{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:var(--pr);color:#fff;font-size:26px;line-height:1;margin-top:-2px}
+@media (orientation:landscape) and (max-height:520px),(min-width:900px){
+ #app{padding:12px 16px 90px 100px;max-width:none}
+ nav#nav{top:0;bottom:0;right:auto;width:84px;flex-direction:column;justify-content:flex-start;border-top:0;border-right:1px solid var(--bd);padding:6px 0;overflow-y:auto}
+ nav#nav button{flex:0 0 auto;min-height:60px}
+ nav#nav button.add{order:-1;margin-bottom:4px}
+}
+@media (min-width:900px){#app{max-width:1180px;margin:0 auto;padding-left:100px}}
+@media (max-height:440px) and (orientation:landscape){nav#nav button{min-height:50px;font-size:10px}nav#nav button.add{margin-bottom:0}nav#nav button.add .pl{width:32px;height:32px;font-size:22px}nav#nav svg{width:22px;height:22px}}
+.ban{background:var(--wabg);color:var(--wa);border:1px dashed var(--wa);border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+.ban .btn{margin:6px 0 0 0}
+.alert.todo{background:var(--pr2);color:var(--tx);border:1px solid var(--pr)}
+.ck{align-items:flex-start;padding:7px 0}
+.helpbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--pr);background:var(--card);color:var(--pr);font:inherit;font-size:18px;font-weight:700;margin-left:10px;vertical-align:middle;cursor:pointer;padding:0}
+.helpbtn::after{content:'';position:absolute;inset:-6px}
+.tbtn{margin-left:12px;min-height:44px;padding:0 14px;border-radius:10px;border:1.5px solid #fff;background:transparent;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+details{border-bottom:1px solid var(--bd)}
+ol.rules{padding-left:22px;margin:4px 0 12px}ol.rules li{margin:6px 0}
+.ck input{margin-top:1px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.asof{display:flex;align-items:center;gap:8px;color:var(--mu);font-size:14px}
+input,select,textarea{font:inherit;font-size:16px;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;min-height:44px;padding:8px 12px;width:100%}
+.asof input{width:auto}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px;box-shadow:var(--sh)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.grid3{display:grid;gap:10px;grid-template-columns:1fr;margin-bottom:12px}
+@media (min-width:600px){.grid3{grid-template-columns:repeat(3,1fr)}}
+.pc{display:flex;justify-content:space-between;align-items:center;gap:8px;border-left:5px solid var(--bd)}
+.pc.om{border-left-color:var(--om)}.pc.courant{border-left-color:var(--cc)}.pc.epargne{border-left-color:var(--ce)}
+.num{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.big{font-size:28px}
+.pos{color:var(--ok)}.neg{color:var(--er)}
+.hero{background:var(--pr);color:#fff;border-radius:var(--r);padding:16px;margin-bottom:12px}
+.hero small{color:rgba(255,255,255,.85)}
+.bar{height:10px;border-radius:6px;background:rgba(255,255,255,.3);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:#fff}
+.rw{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.rw:last-child{border-bottom:0}
+.rw>div:first-child{min-width:0}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:600;background:var(--pr2);color:var(--pr);white-space:nowrap}
+.chip.ok{background:var(--okbg);color:var(--ok)}.chip.wa{background:var(--wabg);color:var(--wa)}.chip.er{background:var(--erbg);color:var(--er)}.chip.mu{background:var(--bg);color:var(--mu)}
+.btn{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;font-weight:600;cursor:pointer}
+.btn.pri{background:var(--pr);color:#fff;border-color:var(--pr)}
+.btn.danger{color:var(--er)}
+.btn.sm{padding:0 12px;font-size:14px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.alert{border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:14px;background:var(--wabg);color:var(--wa)}
+.alert.er{background:var(--erbg);color:var(--er)}.alert.ok{background:var(--okbg);color:var(--ok)}
+.back{display:inline-flex;align-items:center;min-height:44px;color:var(--pr);font-weight:700;background:none;border:0;font:inherit;font-weight:700;cursor:pointer;padding:0}
+.jr.cx{opacity:.55}.jr.cx b{text-decoration:line-through}
+.jh{display:flex;gap:10px;align-items:flex-start}
+.jh .ic{font-size:22px;line-height:1.2}
+.jb{flex:1;min-width:0}
+.jr{margin-bottom:10px}
+details>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700}
+pre.wa{white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:12px;font:14px/1.5 ui-monospace,Consolas,monospace;max-height:360px;overflow:auto}
+.menu{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.menu .btn{text-align:left;min-height:56px}
+@media (max-width:380px){.menu{grid-template-columns:1fr}}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:50;align-items:flex-end;justify-content:center}
+#sheet.open{display:flex}
+.sheetbox{background:var(--card);width:100%;max-width:640px;max-height:100dvh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;min-height:0}
+.sheethead{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sheetbody{padding:14px 16px;overflow:auto;flex:1;min-height:0;overscroll-behavior:contain}
+.sheetfoot{padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--bd);display:flex;gap:10px}
+.sheetfoot .btn{flex:1}
+@media (max-height:520px){#sheet{align-items:stretch}.sheetbox{border-radius:0;max-width:none;height:100dvh}.sheethead,.sheetfoot{padding-top:8px;padding-bottom:8px}}
+@media (min-width:700px) and (min-height:620px){#sheet{align-items:center}.sheetbox{border-radius:18px;max-height:90dvh}}
+@media (max-height:520px) and (min-width:640px){#f{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;align-items:start}#f .f{margin-bottom:8px}#f #dyn,#f #hint{grid-column:1/-1}}
+.f{display:grid;gap:4px;margin-bottom:12px}
+.f label{font-size:14px;font-weight:600}
+.f small{margin-top:2px}
+.ck{display:flex;align-items:center;gap:10px;min-height:44px}
+.ck input{width:22px;height:22px;min-height:0;flex:none}
+.err{color:var(--er);font-weight:600;margin-top:8px}
+#hint{margin-top:6px}
+.hintbox{background:var(--pr2);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:8px}
+.hintbox.wa{background:var(--wabg)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav) + 80px);background:#14213d;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:60;display:none;max-width:90vw}
+@media (orientation:landscape) and (max-height:520px),(min-width:900px){#toast{bottom:80px}}
+ul.rules{padding-left:20px;margin:6px 0}ul.rules li{margin:6px 0}
+.mrow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--bd);align-items:center}
+.mrow:last-child{border-bottom:0}
+.sep{height:1px;background:var(--bd);margin:12px 0}
+</style>
+</head>
+<body>
+<nav id="nav" aria-label="Navigation"></nav>
+<main id="app"></main>
+<div id="sheet"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="imp" accept="application/json,.json" hidden>
+<script>
+'use strict';
+/* ======================= Utilitaires ======================= */
+const KEY='ajlec_treso_v1';
+const VERSION='1.0.1';
+const POCHES=[{id:'om',nom:'Orange Money'},{id:'courant',nom:'Compte courant'},{id:'epargne',nom:'Compte épargne'}];
+const pNom=id=>(POCHES.find(p=>p.id===id)||{nom:id||''}).nom;
+const p2=n=>String(n).padStart(2,'0');
+const sepM=n=>Math.abs(Math.round(n||0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const fmt=n=>(Math.round(n||0)<0?'−':'')+sepM(n)+' F';
+const fd=iso=>{if(!iso)return '—';const a=iso.split('-');return a[2]+'/'+a[1]+'/'+a[0]};
+const JOURS=['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
+const fdl=iso=>{const[y,m,d]=iso.split('-').map(Number);return JOURS[new Date(y,m-1,d).getDay()]+' '+fd(iso)};
+const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const mLabel=k=>{const[y,m]=k.split('-').map(Number);return MOIS[m-1]+' '+y};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const todayISO=()=>{const d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())};
+const parse=iso=>{const[y,m,d]=iso.split('-').map(Number);return{y,m,d}};
+const mk=(y,m,d)=>y+'-'+p2(m)+'-'+p2(d);
+const lastDay=(y,m)=>new Date(y,m,0).getDate();
+function addMonths(iso,k,jour){const{y,m,d}=parse(iso);const t=y*12+(m-1)+k;const yy=Math.floor(t/12),mm=t%12+1;return mk(yy,mm,Math.min(jour||d,lastDay(yy,mm)))}
+function secondSunday(y,m){const g=new Date(y,m-1,1).getDay();return mk(y,m,1+((7-g)%7)+7)}
+const addKey=(key,n)=>{const[y,m]=key.split('-').map(Number);const t=y*12+(m-1)+n;return Math.floor(t/12)+'-'+p2(t%12+1)};
+
+/* ======================= Données (état) ======================= */
+function demo(){
+ const s={v:1,seq:0,demo:true,
+  params:{cotisation:80000,penalite:40000,taux:0.02,collation:10000,duree:10,reserve:0.3,debutSuivi:'2026-11',dateEtat:'2026-11-10'},
+  bareme:[{id:'b1',motif:'Retard à l’AG',montant:5000},{id:'b2',motif:'Absence à l’AG virtuelle',montant:10000},{id:'b3',motif:'Absence à l’AG physique',montant:25000}],
+  membres:[{id:'m1',nom:'Membre A'},{id:'m2',nom:'Membre B'},{id:'m3',nom:'Membre C'},{id:'m4',nom:'Membre D'},{id:'m5',nom:'Membre E'}],
+  ouverture:{date:'2026-10-23',om:500000,courant:1500000,epargne:1000000},
+  journal:[],lastBackup:null};
+ const add=(t,o)=>{s.seq++;s.journal.push(Object.assign({id:'e'+s.seq,t,ts:s.seq},o))};
+ add('remboursement_report',{date:'2026-10-30',membre:'m1',poche:'courant',montant:600000,libelle:'Remboursement crédit (exemple, non ventilé)'});
+ add('cotisation',{date:'2026-11-07',membre:'m3',poche:'om',montant:160000,ref:'exemple',note:'novembre + décembre (avance)'});
+ add('credit_report',{date:'2026-11-10',creditId:'C-DEMO-B',membre:'m2',capital:400000,interets:16000,dateEtat:'2026-11-10',dernierButoir:'2026-10-30',prochaineButoir:'2026-11-30',butoirJour:30,echeanceFinale:'2026-12-30',taux:0.02});
+ add('credit_report',{date:'2026-11-10',creditId:'C-DEMO-D',membre:'m4',capital:1200000,interets:48000,dateEtat:'2026-11-10',dernierButoir:'2026-11-10',prochaineButoir:'2026-12-10',butoirJour:10,echeanceFinale:'2027-08-10',taux:0.02});
+ add('engagement',{date:'2026-11-10',libelle:'Dépense à prévoir (exemple)',montant:200000});
+ return s;
+}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);if(o&&o.journal&&o.params)return o}}catch(e){}return null}
+let S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Sauvegarde locale impossible : exportez vos données')}}
+const defaultAsOf=()=>{const t=todayISO();if(!S)return t;return t>S.params.dateEtat?t:S.params.dateEtat};
+const pushEv=o=>{S.seq=(S.seq||0)+1;const e=Object.assign({id:'e'+S.seq,ts:Date.now()+S.seq},o);S.journal.push(e);return e};
+const memNom=id=>(S.membres.find(m=>m.id===id)||{nom:id||''}).nom;
+const cmp=(a,b)=>a.date<b.date?-1:a.date>b.date?1:a.ts-b.ts;
+const cancelledSet=()=>{const c=new Set();S.journal.forEach(e=>{if(e.t==='annulation')c.add(e.cible)});return c};
+function live(asOf){const c=cancelledSet();return S.journal.filter(e=>e.t!=='annulation'&&!c.has(e.id)&&(!asOf||e.date<=asOf)).sort(cmp)}
+const group=e=>e.grp?S.journal.filter(x=>x.grp===e.grp):[e];
+
+/* ======================= Moteur de calcul ======================= */
+function cashFx(e){switch(e.t){
+ case'cotisation':case'remboursement_report':case'sanction_reglement':case'recette':return[[e.poche,e.montant]];
+ case'remboursement':return[[e.poche,(e.capital||0)+(e.interets||0)+(e.sanctions||0)]];
+ case'credit_octroi':return[[e.poche,-(e.capital-(e.retenueRachat||0))]];
+ case'depense':return[[e.poche,-e.montant]];
+ case'transfert':return[[e.de,-e.montant],[e.vers,e.montant]];
+ default:return[]}}
+function soldes(asOf){const b={om:S.ouverture.om,courant:S.ouverture.courant,epargne:S.ouverture.epargne};
+ live(asOf).forEach(e=>{if(e.date>=S.ouverture.date)cashFx(e).forEach(([p,m])=>{b[p]+=m})});return b}
+
+const cotCum=(m,upTo)=>live(upTo).filter(e=>e.t==='cotisation'&&e.membre===m).reduce((s,e)=>s+e.montant,0);
+function moisList(asOf){
+ const[ay,am]=asOf.split('-').map(Number);const[sy,sm]=S.params.debutSuivi.split('-').map(Number);
+ const s=sy*12+sm-1;let e=ay*12+am;if(e<s)e=s;const o=[];
+ for(let i=s;i<=e;i++){const y=Math.floor(i/12),m=i%12+1;o.push({key:y+'-'+p2(m),deadline:secondSunday(y,m),j:i-s})}return o}
+function curMonth(asOf){const l=moisList(asOf);return l.find(x=>x.key===asOf.slice(0,7))||l[0]}
+function mm(m,asOf){
+ const cot=S.params.cotisation,now=cotCum(m,asOf);
+ return moisList(asOf).map(x=>{
+  const req=cot*(x.j+1),dl=cotCum(m,x.deadline<asOf?x.deadline:asOf);
+  let st;
+  if(now>=req)st=(dl>=req||x.deadline>=asOf)?'ok':'retard_paye';
+  else if(x.deadline>=asOf)st='attente';
+  else st='impaye';
+  return Object.assign({},x,{req,nowCum:now,dlCum:dl,st,pen:(x.deadline<asOf&&dl<req),manque:Math.max(0,req-now)})})}
+function penalites(asOf){const o=[];
+ S.membres.forEach(b=>{mm(b.id,asOf).forEach(x=>{if(x.pen)o.push({id:'pen:'+b.id+':'+x.key,membre:b.id,date:x.deadline,motif:'Retard de cotisation — '+mLabel(x.key),montant:S.params.penalite,source:'automatique'})})});return o}
+function sanctions(asOf){
+ const ev=live(asOf),canc=new Map();
+ ev.filter(e=>e.t==='sanction_annulation').forEach(e=>canc.set(e.cible,e));
+ const items=penalites(asOf).concat(ev.filter(e=>e.t==='sanction').map(e=>({id:e.id,membre:e.membre,date:e.date,motif:e.motif,montant:e.montant,source:e.source||'libre',refAG:e.refAG})));
+ items.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+ const pay={};
+ ev.forEach(e=>{if(e.t==='sanction_reglement')pay[e.membre]=(pay[e.membre]||0)+e.montant;if(e.t==='remboursement'&&e.sanctions)pay[e.membre]=(pay[e.membre]||0)+e.sanctions});
+ items.forEach(it=>{const c=canc.get(it.id);if(c){it.statut='annulée';it.annul=c;it.paye=0}});
+ S.membres.forEach(b=>{let rest=pay[b.id]||0;items.filter(i=>i.membre===b.id&&i.statut!=='annulée').forEach(i=>{const p=Math.min(rest,i.montant);i.paye=p;rest-=p;i.statut=p>=i.montant?'payée':p>0?'partielle':'due'})});
+ return items}
+const dueSanc=(m,asOf)=>sanctions(asOf).filter(i=>i.membre===m&&(i.statut==='due'||i.statut==='partielle')).reduce((s,i)=>s+i.montant-i.paye,0);
+
+function calcCredits(asOf){
+ const ev=live(asOf),out=[];
+ ev.forEach(e=>{
+  if(e.t==='credit_report')out.push({id:e.creditId,membre:e.membre,taux:e.taux!=null?e.taux:S.params.taux,echeanceFinale:e.echeanceFinale,refAG:e.refAG,src:e,capital0:e.capital,int0:e.interets,start:e.dateEtat,jour:e.butoirJour,first:e.prochaineButoir,dernier:e.dernierButoir});
+  else if(e.t==='credit_octroi'){const j=parse(e.date).d;out.push({id:e.creditId,membre:e.membre,taux:e.taux!=null?e.taux:S.params.taux,echeanceFinale:e.echeanceFinale,refAG:e.refAG,src:e,capital0:e.capital,int0:0,start:e.date,jour:j,first:addMonths(e.date,1,j),dernier:null})}});
+ out.forEach(c=>{
+  const rem=ev.filter(x=>(x.t==='remboursement'||x.t==='rachat_cloture')&&x.creditId===c.id);
+  c.remb=rem;c.lignes=[];let k=0,D=c.first,add=0;
+  while(D<=asOf&&k<240){
+   const cap=c.capital0-rem.filter(r=>r.date<=D).reduce((s,r)=>s+(r.capital||0),0);
+   const i=cap>0?Math.round(cap*c.taux):0;
+   c.lignes.push({date:D,capital:cap,interet:i});add+=i;k++;D=addMonths(c.first,k,c.jour)}
+  if(c.lignes.length)c.dernier=c.lignes[c.lignes.length-1].date;
+  c.intCum=c.int0+add;c.intPayes=rem.reduce((s,r)=>s+(r.interets||0),0);c.intDu=c.intCum-c.intPayes;
+  c.capital=c.capital0-rem.reduce((s,r)=>s+(r.capital||0),0);
+  c.prochaine=c.capital>0?D:null;
+  c.ouvert=c.capital>0||c.intDu>0;
+  c.icon=(c.capital>0&&c.echeanceFinale<asOf)?'🔴':(c.capital>0&&c.dernier&&c.dernier<asOf&&c.intDu>0)?'🟠':'🟢'});
+ return out}
+
+function engagements(asOf){const ev=live(asOf);
+ return ev.filter(e=>e.t==='engagement').map(e=>{const d=ev.find(x=>x.t==='depense'&&x.engId===e.id);return Object.assign({},e,{statut:d?'payé':'prévu',depense:d})})}
+function collations(asOf){const ev=live(asOf),out=[];
+ ev.filter(e=>e.t==='collation_ag').forEach(a=>a.debiteurs.forEach(d=>out.push({cid:a.id+':'+d,aid:a.id,date:a.date,hote:a.hote,debiteur:d,montant:a.montant,statut:'due'})));
+ ev.forEach(e=>{
+  if(e.t==='collation_payee'){const c=out.find(x=>x.cid===e.cible);if(c)c.statut='payée (espèces)'}
+  if(e.t==='credit_octroi'&&e.collationIds)e.collationIds.forEach(id=>{const c=out.find(x=>x.cid===id);if(c){c.statut='retenue sur crédit';c.creditId=e.creditId}})});
+ return out}
+function memStat(id,asOf){
+ const months=mm(id,asOf),due=months.filter(x=>x.deadline<asOf),jd=due.length?due[due.length-1]:null;
+ const pending=jd?jd.manque:0,susp=pending>0;
+ const cr=calcCredits(asOf).filter(c=>c.membre===id&&c.ouvert);
+ return{months,pending,susp,cr,elig:!susp&&cr.length===0,sanc:dueSanc(id,asOf),epargne:cotCum(id,asOf),
+  coll:collations(asOf).filter(c=>c.debiteur===id&&c.statut==='due').reduce((s,c)=>s+c.montant,0)}}
+function etat(asOf){
+ const sd=soldes(asOf),net=sd.om+sd.courant+sd.epargne;
+ const cr=calcCredits(asOf),ouverts=cr.filter(c=>c.ouvert);
+ const creances=ouverts.reduce((s,c)=>s+c.capital+c.intDu,0);
+ const eng=engagements(asOf).filter(e=>e.statut==='prévu'),engTot=eng.reduce((s,e)=>s+e.montant,0);
+ const aTerme=net+creances;
+ return{asOf,sd,net,cr,ouverts,creances,aTerme,liq:aTerme?net/aTerme:0,eng,engTot,netApres:net-engTot,reserve:aTerme?(net-engTot)/aTerme:0,
+  initial:S.ouverture.om+S.ouverture.courant+S.ouverture.epargne}}
+
+/* ======================= Descriptions du journal ======================= */
+function desc(e){const m=memNom(e.membre);switch(e.t){
+ case'cotisation':return{ic:'💰',ti:'Cotisation — '+m,de:e.ref?'Réf. '+e.ref:'',mt:e.montant,p:e.poche};
+ case'remboursement':return{ic:'↩️',ti:'Remboursement de crédit — '+m,de:'capital '+fmt(e.capital)+' · intérêts '+fmt(e.interets)+(e.sanctions?' · sanctions '+fmt(e.sanctions):''),mt:(e.capital||0)+(e.interets||0)+(e.sanctions||0),p:e.poche};
+ case'remboursement_report':return{ic:'↩️',ti:'Remboursement non ventilé — '+m,de:e.libelle||'',mt:e.montant,p:e.poche};
+ case'credit_report':return{ic:'📌',ti:'Report de crédit — '+m,de:'capital '+fmt(e.capital)+' · intérêt cumulé '+fmt(e.interets)+' (état du '+fd(e.dateEtat)+')',mt:0};
+ case'credit_octroi':return{ic:'🏦',ti:'Crédit accordé — '+m,de:'capital '+fmt(e.capital)+(e.retenueRachat?' · rachat −'+fmt(e.retenueRachat):'')+(e.retenueCollation?' · collation retenue '+fmt(e.retenueCollation):'')+' · échéance '+fd(e.echeanceFinale)+(e.refAG?' · décision : '+e.refAG:''),mt:-(e.capital-(e.retenueRachat||0)),p:e.poche};
+ case'rachat_cloture':return{ic:'🔁',ti:'Rachat — ancien crédit soldé — '+m,de:'capital '+fmt(e.capital)+' + intérêts '+fmt(e.interets)+' réglés par déduction',mt:0};
+ case'sanction':return{ic:'⚖️',ti:'Sanction — '+m,de:e.motif+' · '+fmt(e.montant)+(e.refAG?' · décision : '+e.refAG:''),mt:0};
+ case'sanction_reglement':return{ic:'⚖️',ti:'Règlement de sanctions — '+m,de:'',mt:e.montant,p:e.poche};
+ case'sanction_annulation':return{ic:'🕊️',ti:'Sanction annulée — '+m,de:e.motif+(e.refAG?' · décision : '+e.refAG:''),mt:0};
+ case'depense':return{ic:'🧾',ti:'Dépense — '+e.libelle,de:(e.vise?'Visée':'Non visée')+(e.engId?' · engagement payé':''),mt:-e.montant,p:e.poche};
+ case'engagement':return{ic:'🗓️',ti:'Dépense à prévoir — '+e.libelle,de:fmt(e.montant),mt:0};
+ case'recette':return{ic:'➕',ti:'Recette — '+e.libelle,de:'',mt:e.montant,p:e.poche};
+ case'transfert':return{ic:'🔄',ti:'Transfert '+pNom(e.de)+' → '+pNom(e.vers),de:'',mt:0};
+ case'collation_ag':return{ic:'🍽️',ti:'Collation AG — hôte '+memNom(e.hote),de:e.debiteurs.map(memNom).join(', ')+' : '+fmt(e.montant)+' chacun dû',mt:0};
+ case'collation_payee':return{ic:'🍽️',ti:'Collation payée en espèces',de:memNom((e.cible||'').split(':')[1]),mt:0};
+ case'releve':return{ic:'🏛️',ti:'Relevé — '+pNom(e.poche),de:'solde réel '+fmt(e.soldeReel),mt:0};
+ case'annulation':{const c=S.journal.find(x=>x.id===e.cible);return{ic:'↩',ti:'Annulation'+(c?' : '+desc(c).ti:''),de:e.motif||'',mt:0}}
+ default:return{ic:'•',ti:e.t,de:'',mt:0}}}
+
+/* ======================= Message WhatsApp ======================= */
+const F=n=>sepM(n)+'F';
+const K=n=>(Math.round(n/100)/10)+'k';
+function waText(asOf){
+ const E=etat(asOf),P=S.params,cm=curMonth(asOf),L=[];
+ L.push('*ÉTAT FINANCIER AJLEC — au '+fd(asOf)+'*','');
+ L.push('*Solde initial ('+fd(S.ouverture.date)+') :* '+F(E.initial),'');
+ L.push('*Cotisations de '+mLabel(cm.key)+' (délai '+fd(cm.deadline).slice(0,5)+') :*');
+ let pend=0;
+ S.membres.forEach(b=>{const st=memStat(b.id,asOf),x=st.months.find(y=>y.key===cm.key),nx=st.months.find(y=>y.j===x.j+1);
+  const ic=x.st==='ok'?(nx&&nx.nowCum>=nx.req?'✅✅':'✅'):x.st==='retard_paye'?'✅ (en retard)':x.st==='impaye'?'❌':'⏳';
+  L.push(ic+' '+b.nom+' '+K(P.cotisation));pend+=st.pending});
+ L.push('Total en attente : '+K(pend),'');
+ const rem=live(asOf).filter(e=>e.date>=S.ouverture.date&&(e.t==='remboursement'||e.t==='remboursement_report'));
+ L.push('*Remboursements de crédit :*');
+ if(!rem.length)L.push('Aucun');
+ rem.forEach(e=>{const t=e.t==='remboursement'?(e.capital||0)+(e.interets||0)+(e.sanctions||0):e.montant;
+  L.push(memNom(e.membre)+' : '+F(t)+(e.t==='remboursement'?' (capital '+F(e.capital)+', intérêts '+F(e.interets)+(e.sanctions?', sanctions '+F(e.sanctions):'')+')':' (non ventilé)')+' — '+fd(e.date).slice(0,5))});
+ L.push('','*Crédits en cours :*');
+ S.membres.forEach(b=>{const cs=E.ouverts.filter(c=>c.membre===b.id);
+  if(!cs.length){L.push('🟢 '+b.nom+' : 0F');return}
+  cs.forEach(c=>{L.push(c.icon+' *'+b.nom+'* :','Capital prêt : '+F(c.capital),'Intérêt cumulé : '+F(c.intDu));
+   if(c.capital>0)L.push('Échéance intérêt '+Math.round(c.taux*1000)/10+'% : '+fd(c.prochaine)+' (+'+F(Math.round(c.capital*c.taux))+' si pas de remboursement avant)');
+   L.push('Échéance crédit : '+fd(c.echeanceFinale),'Total : *'+F(c.capital+c.intDu)+'*')})});
+ L.push('','*Total crédit :* '+F(E.creances),'');
+ const am=sanctions(asOf).filter(i=>i.statut==='due'||i.statut==='partielle');
+ if(am.length){L.push('*Amendes à payer :*');S.membres.forEach(b=>{const t=am.filter(i=>i.membre===b.id).reduce((s,i)=>s+i.montant-i.paye,0);if(t)L.push(b.nom+' : '+F(t))});L.push('')}
+ const dep=live(asOf).filter(e=>e.date>=S.ouverture.date&&e.t==='depense');
+ L.push('*Dépenses :*');
+ if(!dep.length)L.push('Frais bancaires : à saisir au prochain relevé');
+ dep.forEach(e=>L.push(e.libelle+' : '+F(e.montant)));
+ L.push('','*Solde final net :* *'+F(E.net)+'*');
+ POCHES.forEach(p=>L.push('• '+p.nom+' : '+F(E.sd[p.id])));
+ L.push('(sous réserve des frais de banque)','');
+ L.push('*⚠️ Dépenses à prévoir*');
+ if(!E.eng.length)L.push('Aucune');
+ E.eng.forEach(e=>L.push('- '+F(e.montant)+' '+e.libelle));
+ L.push('','*Solde à terme :* *'+F(E.aTerme)+'*','*Taux de liquidité : '+Math.round(E.liq*100)+'%*');
+ return L.join('\n')}
+
+/* ======================= Vues ======================= */
+const U={tab:'etat',asOf:defaultAsOf(),membre:null,credit:null,plus:null,jf:{q:'',all:false}};
+const IC={
+ etat:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ membres:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14.5c2.7 0 4.5 1.8 4.5 4.5"/>',
+ credits:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5v5M17.5 9.5v5"/>',
+ journal:'<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
+ plus:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>'};
+const NAV=[['etat','État'],['membres','Membres'],['saisie','Saisie'],['credits','Crédits'],['journal','Journal'],['plus','Plus']];
+function renderNav(){$('#nav').innerHTML=NAV.map(n=>n[0]==='saisie'?'<button class="add" data-act="menu" aria-label="Nouvelle saisie"><span class="pl">＋</span>Saisie</button>':'<button data-act="tab" data-tab="'+n[0]+'" class="'+(U.tab===n[0]?'on':'')+'" aria-label="'+n[1]+'"><svg viewBox="0 0 24 24">'+IC[n[0]]+'</svg>'+n[1]+'</button>').join('')}
+function banner(){
+ let h='';
+ if(S.demo)h+='<div class="ban"><b>DONNÉES FICTIVES D’EXEMPLE</b> — pour essayer l’application sans risque. <button class="btn sm" data-act="quitDemo">Quitter la démonstration</button></div>';
+ return h}
+function renderWelcome(){
+ $('#nav').innerHTML='';
+ $('#app').innerHTML='<div class="card" style="margin-top:20px"><h1>Trésorerie AJLEC</h1><p>Bienvenue. Cet appareil ne contient encore aucune donnée.</p><div class="btns"><button class="btn pri" data-act="importJSON">Importer le fichier de données reçu</button><button class="btn" data-act="startDemo">Essayer avec des données fictives</button></div><p class="mu">Le fichier de données (.json) vous est envoyé séparément et en privé. Les données restent sur cet appareil : pensez à les sauvegarder régulièrement.</p><p class="mu">Version '+VERSION+'</p></div>'}
+function render(){
+ if(!S){renderWelcome();return}
+ const v={etat:vEtat,membres:vMembres,credits:vCredits,journal:vJournal,plus:vPlus}[U.tab];
+ $('#app').innerHTML=banner()+v();
+ const hh=$('#app .top h1');if(hh)hh.insertAdjacentHTML('beforeend','<button class="helpbtn" data-act="help" aria-label="Aide">?</button>');
+ renderNav();
+ if(!tourSeen()){markTour();setTimeout(()=>openTour(0),80)}}
+const cotChip=x=>{
+ if(x.st==='ok')return x.adv?'<span class="chip ok">✅✅ Payé + avance</span>':'<span class="chip ok">✅ Payé</span>';
+ if(x.st==='retard_paye')return '<span class="chip wa">Payé en retard</span>';
+ if(x.st==='attente')return '<span class="chip mu">À régler avant le '+fd(x.deadline).slice(0,5)+'</span>';
+ return '<span class="chip er">❌ Impayé — '+fmt(x.manque)+'</span>'};
+function monthsAdv(months){months.forEach((x,i)=>{const n=months[i+1];x.adv=!!(n&&n.nowCum>=n.req&&x.st==='ok')});return months}
+
+function vEtat(){
+ const E=etat(U.asOf),cm=curMonth(U.asOf);
+ const ms=S.membres.map(b=>({b,st:memStat(b.id,U.asOf)}));
+ const pend=ms.reduce((s,x)=>s+x.st.pending,0);
+ const am=sanctions(U.asOf).filter(i=>i.statut==='due'||i.statut==='partielle').reduce((s,i)=>s+i.montant-i.paye,0);
+ const susp=ms.filter(x=>x.st.susp).map(x=>x.b.nom);
+ let al='';
+ if(susp.length)al+='<div class="alert er">⛔ Suspendus (vote et crédit) : <b>'+esc(susp.join(', '))+'</b> — cotisation échue impayée.</div>';
+ E.ouverts.forEach(c=>{
+  if(c.icon==='🔴')al+='<div class="alert er">🔴 '+esc(memNom(c.membre))+' : échéance du crédit dépassée ('+fd(c.echeanceFinale)+').</div>';
+  else if(c.icon==='🟠')al+='<div class="alert">🟠 '+esc(memNom(c.membre))+' : intérêt échu non réglé ('+fmt(c.intDu)+', dernière date butoir '+fd(c.dernier)+').</div>';
+  if(c.prochaine){const d=Math.round((new Date(c.prochaine)-new Date(U.asOf))/864e5);if(d<=10)al+='<div class="alert">⏰ '+esc(memNom(c.membre))+' : prochaine date butoir d’intérêt le <b>'+fd(c.prochaine)+'</b> (+'+fmt(c.capital*c.taux)+' sans remboursement avant).</div>'}});
+ const nk=moisList(U.asOf).find(x=>x.deadline>=U.asOf);
+ if(nk)al+='<div class="alert ok">📅 Prochaine date limite de cotisation : <b>'+fdl(nk.deadline)+'</b> ('+mLabel(nk.key)+').</div>';
+ (S.todo||[]).filter(t=>!t.done).forEach(t=>{al+='<div class="alert todo"><b>À compléter</b> — '+esc(t.txt)+'<br><button class="btn sm" style="margin-top:6px" data-act="todoDone" data-id="'+t.id+'">C’est fait</button></div>'});
+ if(!S.lastBackup||Date.now()-S.lastBackup>7*864e5)al+='<div class="alert">💾 Pensez à sauvegarder vos données (Plus → Sauvegarde).</div>';
+ const poches=POCHES.map(p=>'<div class="card pc '+p.id+'"><span>'+p.nom+'</span><span class="num">'+fmt(E.sd[p.id])+'</span></div>').join('');
+ const cot=ms.map(x=>{const mo=monthsAdv(x.st.months),y=mo.find(k=>k.key===cm.key);return '<div class="rw"><div><b>'+esc(x.b.nom)+'</b></div><div>'+cotChip(y)+'</div></div>'}).join('');
+ const cred=E.ouverts.length?E.ouverts.map(c=>'<div class="rw"><div>'+c.icon+' <b>'+esc(memNom(c.membre))+'</b><div class="mu">capital '+fmt(c.capital)+' · intérêt dû '+fmt(c.intDu)+'</div></div><div class="num">'+fmt(c.capital+c.intDu)+'</div></div>').join(''):'<p class="mu">Aucun crédit en cours.</p>';
+ return '<header class="top"><h1>État financier</h1><label class="asof">au <input type="date" id="asof" value="'+U.asOf+'"></label></header>'+
+ '<div class="hero"><small>Solde net en caisse (3 poches)</small><div class="num big">'+fmt(E.net)+'</div><small>Taux de liquidité : <b>'+Math.round(E.liq*100)+' %</b> ('+(E.liq*100).toFixed(1).replace('.',',')+' %)</small><div class="bar"><i style="width:'+Math.min(100,E.liq*100).toFixed(1)+'%"></i></div></div>'+
+ '<div class="grid3">'+poches+'</div>'+al+
+ '<div class="grid"><div class="card"><h2>Position</h2>'+
+  '<div class="rw"><span>Crédits en cours (capital + intérêts dus)</span><span class="num">'+fmt(E.creances)+'</span></div>'+
+  '<div class="rw"><b>Solde à terme</b><span class="num">'+fmt(E.aTerme)+'</span></div>'+
+  '<div class="rw"><span>Dépenses à prévoir ('+E.eng.length+')</span><span class="num neg">'+fmt(E.engTot)+'</span></div>'+
+  '<div class="rw"><span>Solde net après engagements</span><span class="num">'+fmt(E.netApres)+'</span></div>'+
+  '<div class="rw"><span>Réserve de caisse après engagements <small>(minimum '+Math.round(S.params.reserve*100)+' %, art. 26-4)</small></span><span class="chip '+(E.reserve>=S.params.reserve?'ok':'er')+'">'+(E.reserve*100).toFixed(0)+' %'+(E.reserve>=S.params.reserve?' ✓':' ⚠')+'</span></div>'+
+  '<div class="rw"><span>Amendes à payer</span><span class="num">'+fmt(am)+'</span></div></div>'+
+ '<div class="card"><h2>Cotisations de '+mLabel(cm.key)+'</h2><p class="mu">Date limite : '+fdl(cm.deadline)+' · '+fmt(S.params.cotisation)+' par membre</p>'+cot+'<div class="rw"><b>Total en attente</b><span class="num '+(pend?'neg':'')+'">'+fmt(pend)+'</span></div></div>'+
+ '<div class="card"><h2>Crédits en cours</h2>'+cred+'</div></div>'+
+ '<div class="btns"><button class="btn pri" data-act="wa">Message WhatsApp</button><button class="btn" data-act="situation">Fichier de situation (lecture seule)</button></div>'+
+ '<div id="wabox"></div>'}
+
+function memCard(b,asOf,inter){
+ const st=memStat(b.id,asOf),mo=monthsAdv(st.months),cm=curMonth(asOf),y=mo.find(k=>k.key===cm.key);
+ const flags=(st.susp?'<span class="chip er">⛔ Suspendu (vote et crédit)</span>':'<span class="chip ok">À jour</span>')+' '+(st.cr.length?'<span class="chip wa">Crédit en cours</span>':st.elig?'<span class="chip">Éligible au crédit</span>':'');
+ const dette=st.cr.reduce((s,c)=>s+c.capital+c.intDu,0);
+ return '<div class="card"'+(inter?' data-act="membre" data-id="'+b.id+'" style="cursor:pointer"':'')+'><div class="rw" style="border:0;padding-top:0"><h2>'+esc(b.nom)+'</h2>'+(inter?'<span class="mu">Fiche ›</span>':'')+'</div><div style="margin-bottom:6px">'+flags+'</div>'+
+ '<div class="mrow"><span>Cotisation '+mLabel(cm.key)+'</span><span>'+cotChip(y)+'</span></div>'+
+ '<div class="mrow"><span>Cotisations versées <small>(depuis '+mLabel(S.params.debutSuivi)+')</small></span><span class="num">'+fmt(st.epargne)+'</span></div>'+
+ '<div class="mrow"><span>Crédit dû (capital + intérêts)</span><span class="num">'+fmt(dette)+'</span></div>'+
+ '<div class="mrow"><span>Amendes à payer</span><span class="num '+(st.sanc?'neg':'')+'">'+fmt(st.sanc)+'</span></div>'+
+ (st.coll?'<div class="mrow"><span>Collation due</span><span class="num neg">'+fmt(st.coll)+'</span></div>':'')+'</div>'}
+
+function vMembres(){
+ if(U.membre)return vFiche(U.membre);
+ return '<header class="top"><h1>Membres</h1><label class="asof">au <input type="date" id="asof" value="'+U.asOf+'"></label></header><div class="grid">'+S.membres.map(b=>memCard(b,U.asOf,true)).join('')+'</div>'}
+function vFiche(id){
+ const b=S.membres.find(m=>m.id===id),st=memStat(id,U.asOf),mo=monthsAdv(st.months);
+ const hist=live().filter(e=>e.membre===id||(e.t==='collation_ag'&&(e.hote===id||e.debiteurs.includes(id)))).sort((a,c)=>cmp(c,a));
+ const months=mo.map(x=>'<div class="mrow"><span><b>'+mLabel(x.key)+'</b><br><small>limite '+fdl(x.deadline)+' · cumul requis '+fmt(x.req)+'</small></span><span>'+cotChip(x)+'</span></div>').join('');
+ const sancs=sanctions(U.asOf).filter(i=>i.membre===id).map(i=>'<div class="mrow"><span>'+esc(i.motif)+'<br><small>'+fd(i.date)+' · '+i.source+(i.refAG?' · '+esc(i.refAG):'')+'</small></span><span><span class="num">'+fmt(i.montant)+'</span><br><span class="chip '+(i.statut==='payée'?'ok':i.statut==='annulée'?'mu':'er')+'">'+i.statut+'</span></span></div>').join('')||'<p class="mu">Aucune sanction.</p>';
+ const crs=calcCredits(U.asOf).filter(c=>c.membre===id).map(c=>'<div class="mrow" data-act="credit" data-id="'+c.id+'" style="cursor:pointer"><span>'+c.icon+' Crédit — capital '+fmt(c.capital)+'<br><small>intérêt dû '+fmt(c.intDu)+' · échéance '+fd(c.echeanceFinale)+'</small></span><span class="num">'+fmt(c.capital+c.intDu)+' ›</span></div>').join('')||'<p class="mu">Aucun crédit.</p>';
+ const rest=Math.round(st.epargne*0.2);
+ return '<button class="back" data-act="back">‹ Membres</button><header class="top"><h1>'+esc(b.nom)+'</h1><label class="asof">au <input type="date" id="asof" value="'+U.asOf+'"></label></header>'+memCard(b,U.asOf,false)+
+ '<div class="grid" style="margin-top:12px"><div class="card"><h2>Cotisations mois par mois</h2>'+months+'</div>'+
+ '<div class="card"><h2>Crédits</h2>'+crs+'<h3>Sanctions</h3>'+sancs+'<h3>En cas de démission</h3><p class="mu">Le membre renonce à 80 % de ses cotisations (art. 9) : restituable ≈ <b>'+fmt(rest)+'</b> (20 % de '+fmt(st.epargne)+'). Indicatif : historique d’avant '+mLabel(S.params.debutSuivi)+' non saisi.</p></div></div>'+
+ '<h3>Historique</h3>'+(hist.map(e=>journalRow(e,true)).join('')||'<p class="mu">Aucun mouvement.</p>')}
+
+function vCredits(){
+ if(U.credit)return vCredit(U.credit);
+ const cr=calcCredits(U.asOf),op=cr.filter(c=>c.ouvert),cl=cr.filter(c=>!c.ouvert);
+ const card=c=>'<div class="card" data-act="credit" data-id="'+c.id+'" style="cursor:pointer"><div class="rw" style="border:0;padding-top:0"><h2>'+c.icon+' '+esc(memNom(c.membre))+'</h2><span class="num">'+fmt(c.capital+c.intDu)+'</span></div>'+
+  '<div class="mrow"><span>Capital restant</span><span class="num">'+fmt(c.capital)+'</span></div><div class="mrow"><span>Intérêt dû</span><span class="num">'+fmt(c.intDu)+'</span></div>'+
+  '<div class="mrow"><span>Prochaine date butoir</span><span>'+(c.prochaine?fd(c.prochaine)+' <small>(+'+fmt(c.capital*c.taux)+')</small>':'<span class="chip mu">intérêt gelé</span>')+'</span></div>'+
+  '<div class="mrow"><span>Échéance du crédit</span><span>'+fd(c.echeanceFinale)+'</span></div></div>';
+ return '<header class="top"><h1>Crédits</h1><label class="asof">au <input type="date" id="asof" value="'+U.asOf+'"></label></header>'+
+ '<div class="btns"><button class="btn pri" data-act="form" data-type="credit">Nouveau crédit</button><button class="btn" data-act="form" data-type="remboursement">Remboursement</button><button class="btn" data-act="form" data-type="rachat">Rachat</button></div>'+
+ '<div class="grid">'+(op.map(card).join('')||'<p class="mu">Aucun crédit en cours.</p>')+'</div>'+
+ (cl.length?'<h3>Crédits soldés</h3><div class="grid">'+cl.map(card).join('')+'</div>':'')}
+function vCredit(id){
+ const c=calcCredits(U.asOf).find(x=>x.id===id);if(!c){U.credit=null;return vCredits()}
+ const L=c.lignes.map(l=>'<div class="mrow"><span>'+fd(l.date)+'<br><small>capital restant à cette date : '+fmt(l.capital)+'</small></span><span class="num">'+(l.interet?'+ '+fmt(l.interet):'0 (gelé)')+'</span></div>').join('')||'<p class="mu">Aucune date butoir depuis la reprise.</p>';
+ const R=c.remb.map(r=>'<div class="mrow"><span>'+fd(r.date)+(r.t==='rachat_cloture'?' — rachat':' — remboursement')+'</span><span class="num">capital '+fmt(r.capital)+' · intérêts '+fmt(r.interets)+'</span>'+(r.t==='remboursement'?'<span style="grid-column:1/-1"><button class="btn sm" data-act="corriger" data-id="'+r.id+'">Corriger</button></span>':'')+'</div>').join('')||'<p class="mu">Aucun remboursement.</p>';
+ const o=c.src;
+ return '<button class="back" data-act="back">‹ Crédits</button><header class="top"><h1>'+c.icon+' '+esc(memNom(c.membre))+'</h1></header>'+
+ '<div class="card"><div class="mrow"><span>Origine</span><span>'+(o.t==='credit_report'?'Repris de l’état du '+fd(o.dateEtat):'Octroyé le '+fd(o.date))+'</span></div>'+
+ '<div class="mrow"><span>Capital de départ</span><span class="num">'+fmt(c.capital0)+'</span></div>'+
+ (c.int0?'<div class="mrow"><span>Intérêt cumulé repris</span><span class="num">'+fmt(c.int0)+'</span></div>':'')+
+ '<div class="mrow"><span>Taux mensuel</span><span class="num">'+(c.taux*100)+' %</span></div>'+
+ '<div class="mrow"><span>Capital restant</span><span class="num">'+fmt(c.capital)+'</span></div>'+
+ '<div class="mrow"><span>Intérêt cumulé / payé / dû</span><span class="num">'+fmt(c.intCum)+' / '+fmt(c.intPayes)+' / '+fmt(c.intDu)+'</span></div>'+
+ '<div class="mrow"><span><b>Total dû</b></span><span class="num">'+fmt(c.capital+c.intDu)+'</span></div>'+
+ '<div class="mrow"><span>Prochaine date butoir</span><span>'+(c.prochaine?fd(c.prochaine):'intérêt gelé (capital soldé)')+'</span></div>'+
+ '<div class="mrow"><span>Échéance du crédit</span><span>'+fd(c.echeanceFinale)+(c.refAG?' · '+esc(c.refAG):'')+'</span></div></div>'+
+ '<div class="btns"><button class="btn pri" data-act="form" data-type="remboursement" data-credit="'+c.id+'">Remboursement</button><button class="btn" data-act="form" data-type="rachat" data-credit="'+c.id+'">Rachat</button></div>'+
+ '<div class="grid"><div class="card"><h2>Intérêts ajoutés aux dates butoir</h2>'+L+'</div><div class="card"><h2>Remboursements</h2>'+R+'</div></div>'}
+
+function journalRow(e,actions){
+ const canc=cancelledSet(),d=desc(e),isC=canc.has(e.id),isA=e.t==='annulation';
+ const sg=d.mt>0?'pos':d.mt<0?'neg':'';
+ const noCorr=['credit_report','rachat_cloture','annulation'].includes(e.t)||(e.t==='credit_octroi'&&e.grp);
+ return '<div class="card jr'+(isC?' cx':'')+'"><div class="jh"><span class="ic">'+d.ic+'</span><div class="jb"><b>'+esc(d.ti)+'</b>'+(d.de?'<div class="mu">'+esc(d.de)+'</div>':'')+'<div class="mu">'+fd(e.date)+(d.p?' · '+pNom(d.p):'')+(e.note?' · '+esc(e.note):'')+(isC?' · <b>annulée</b>':'')+'</div></div>'+(d.mt?'<div class="num '+sg+'">'+(d.mt>0?'+':'')+fmt(d.mt)+'</div>':'')+'</div>'+
+ (actions&&!isC&&!isA?'<div class="btns" style="margin-bottom:0">'+(noCorr?'':'<button class="btn sm" data-act="corriger" data-id="'+e.id+'">Corriger</button>')+'<button class="btn sm danger" data-act="annuler" data-id="'+e.id+'">Annuler</button></div>':'')+'</div>'}
+function vJournal(){
+ const canc=cancelledSet(),q=U.jf.q.toLowerCase();
+ let L=S.journal.slice().sort((a,b)=>cmp(b,a));
+ if(!U.jf.all)L=L.filter(e=>!canc.has(e.id)&&e.t!=='annulation');
+ if(q)L=L.filter(e=>{const d=desc(e);return (d.ti+' '+d.de+' '+memNom(e.membre)).toLowerCase().includes(q)});
+ return '<header class="top"><h1>Journal</h1></header><p class="mu">Le journal est verrouillé : on n’efface rien. « Corriger » annule la ligne et pré-remplit la nouvelle saisie.</p>'+
+ '<div class="f"><input id="jq" type="search" placeholder="Rechercher (membre, libellé…)" value="'+esc(U.jf.q)+'"></div><label class="ck"><input type="checkbox" id="jall" '+(U.jf.all?'checked':'')+'> Afficher aussi les lignes annulées</label><div id="jl">'+(L.map(e=>journalRow(e,true)).join('')||'<p class="mu">Aucune écriture.</p>')+'</div>'}
+
+const RULES='<ul class="rules"><li><b>Cotisation</b> : 80 000 F par mois et par membre, au plus tard le <b>2ᵉ dimanche</b> du mois (art. 24). Un versement de plusieurs mois est imputé aux mois impayés les plus anciens, puis en avance.</li>'+
+'<li><b>Retard de cotisation</b> : pénalité de <b>40 000 F par mois en retard</b> (= 50 % de la cotisation, art. 21) et suspension du droit de vote et de crédit tant que la cotisation échue est impayée. Un mois payé en avance n’est jamais en retard.</li>'+
+'<li><b>Crédit</b> : taux <b>2 % par mois</b> (décision de l’AG ; le règlement V2 indique 3 %). Plafond et durée fixés par l’AG, durée par défaut 10 mois (art. 25-4). Aucun blocage : seulement des signalements.</li>'+
+'<li><b>Intérêt</b> : à chaque date butoir mensuelle, 2 % du <b>capital restant dû à cette date</b> (un remboursement fait jusqu’à cette date compte). Capital soldé : intérêt <b>gelé</b>, solde payable à tout moment (art. 25-5).</li>'+
+'<li><b>Remboursement</b> : le trésorier ventile chaque versement entre capital, intérêts et sanctions.</li>'+
+'<li><b>Rachat</b> (art. 25-7) : nouveau crédit saisi pour son montant complet ; la dette de l’ancien (capital + intérêts) est déduite ; le membre perçoit la différence.</li>'+
+'<li><b>Intérêts et pénalités encaissés</b> : ils restent dans la caisse, sans partage individuel.</li>'+
+'<li><b>Démission</b> : le membre renonce à 80 % de ses cotisations (art. 9) — affiché à titre indicatif.</li>'+
+'<li><b>Réserve</b> : 30 % des fonds à conserver en caisse avant engagement de projet (art. 26-4), affichée comme indicateur.</li>'+
+'<li><b>Collation</b> : 10 000 F par membre à chaque AG physique, payée en espèces au membre hôte (hors poches). Si un membre ne paie pas : dette suivie, retenue possible sur un crédit puis reversée à l’hôte — <b>règle à faire voter par l’AG</b> (décision à saisir).</li>'+
+'<li><b>Journal verrouillé</b> : toute correction passe par une annulation visible.</li>'+
+'<li><b>Frais et intérêts bancaires</b> : saisis à chaque relevé (rapprochement).</li></ul>';
+
+function vPlus(){
+ const p=U.plus;
+ const back='<button class="back" data-act="back">‹ Plus</button>';
+ if(p==='sanctions'){
+  const L=sanctions(U.asOf).slice().reverse(),cls=s=>s==='payée'?'ok':s==='annulée'?'mu':'er';
+  return back+'<header class="top"><h1>Sanctions</h1></header><div class="btns"><button class="btn pri" data-act="form" data-type="sanction">Nouvelle sanction</button><button class="btn" data-act="form" data-type="sanction_reglement">Régler</button><button class="btn" data-act="form" data-type="sanction_annulation">Annuler (décision AG)</button></div>'+
+  '<p class="mu">Barème : '+S.bareme.map(b=>esc(b.motif)+' '+fmt(b.montant)).join(' · ')+' · cotisation impayée '+fmt(S.params.penalite)+' (automatique) · autres cas : saisie libre.</p>'+
+  (L.map(i=>'<div class="card jr"><div class="jh"><span class="ic">⚖️</span><div class="jb"><b>'+esc(memNom(i.membre))+'</b><div class="mu">'+esc(i.motif)+'</div><div class="mu">'+fd(i.date)+' · '+i.source+(i.refAG?' · '+esc(i.refAG):'')+(i.annul?' · '+esc(i.annul.motif):'')+'</div></div><div style="text-align:right"><div class="num">'+fmt(i.montant)+'</div><span class="chip '+cls(i.statut)+'">'+i.statut+(i.statut==='partielle'?' ('+fmt(i.paye)+')':'')+'</span></div></div></div>').join('')||'<p class="mu">Aucune sanction.</p>')}
+ if(p==='depenses'){
+  const eg=engagements(U.asOf),dp=live(U.asOf).filter(e=>e.t==='depense').reverse();
+  return back+'<header class="top"><h1>Dépenses</h1></header><div class="btns"><button class="btn pri" data-act="form" data-type="depense">Nouvelle dépense</button><button class="btn" data-act="form" data-type="engagement">Dépense à prévoir</button><button class="btn" data-act="form" data-type="recette">Autre recette</button><button class="btn" data-act="form" data-type="transfert">Transfert entre poches</button></div>'+
+  '<h3>Dépenses à prévoir</h3>'+(eg.map(e=>'<div class="card jr"><div class="jh"><span class="ic">🗓️</span><div class="jb"><b>'+esc(e.libelle)+'</b><div class="mu">'+fd(e.date)+'</div></div><div style="text-align:right"><div class="num">'+fmt(e.montant)+'</div>'+(e.statut==='payé'?'<span class="chip ok">payé</span>':'<button class="btn sm" data-act="payeng" data-id="'+e.id+'">Payer</button>')+'</div></div></div>').join('')||'<p class="mu">Aucune.</p>')+
+  '<h3>Dépenses réglées</h3>'+(dp.map(e=>journalRow(e,true)).join('')||'<p class="mu">Aucune.</p>')}
+ if(p==='collation'){
+  const L=collations('9999-12-31').slice().reverse();
+  return back+'<header class="top"><h1>Collation</h1></header><div class="btns"><button class="btn pri" data-act="form" data-type="collation_ag">Nouvelle AG physique</button><button class="btn" data-act="form" data-type="collation_payee">Marquer payée (espèces)</button></div>'+
+  '<p class="mu">10 000 F par membre, payés en espèces au membre hôte. Un impayé est retenu sur un crédit à l’octroi (formulaire « Nouveau crédit »), puis reversé à l’hôte.</p>'+
+  (L.map(c=>'<div class="card jr"><div class="jh"><span class="ic">🍽️</span><div class="jb"><b>'+esc(memNom(c.debiteur))+' → '+esc(memNom(c.hote))+'</b><div class="mu">AG du '+fd(c.date)+'</div></div><div style="text-align:right"><div class="num">'+fmt(c.montant)+'</div><span class="chip '+(c.statut==='due'?'er':'ok')+'">'+c.statut+'</span></div></div></div>').join('')||'<p class="mu">Aucune collation due.</p>')}
+ if(p==='rapprochement'){
+  const L=live(U.asOf).filter(e=>e.t==='releve').reverse();
+  return back+'<header class="top"><h1>Rapprochement</h1></header><div class="btns"><button class="btn pri" data-act="form" data-type="releve">Saisir un relevé</button></div><p class="mu">Saisissez le solde réel d’une poche à une date : l’app calcule l’écart avec son propre solde, que vous enregistrez en frais ou en intérêts.</p>'+
+  (L.map(e=>{const calc=soldes(e.date)[e.poche],ec=e.soldeReel-calc;return '<div class="card jr"><div class="jh"><span class="ic">🏛️</span><div class="jb"><b>'+pNom(e.poche)+'</b><div class="mu">relevé du '+fd(e.date)+'</div><div class="mu">réel '+fmt(e.soldeReel)+' · calculé '+fmt(calc)+'</div></div><div style="text-align:right"><div class="num '+(ec<0?'neg':ec>0?'pos':'')+'">'+(ec>0?'+':'')+fmt(ec)+'</div>'+(ec?'<button class="btn sm" data-act="ecart" data-id="'+e.id+'">Enregistrer l’écart</button>':'<span class="chip ok">conforme</span>')+'</div></div></div>'}).join('')||'<p class="mu">Aucun relevé saisi.</p>')}
+ if(p==='test')return back+'<header class="top"><h1>Fiche de test</h1></header>'+vTest();
+ if(p==='params')return back+'<header class="top"><h1>Paramètres</h1></header>'+vParams();
+ if(p==='sauvegarde'){
+  return back+'<header class="top"><h1>Sauvegarde</h1></header><div class="card"><p>Dernière sauvegarde : <b>'+(S.lastBackup?new Date(S.lastBackup).toLocaleString('fr-FR'):'jamais')+'</b></p><p class="mu">Les données sont stockées sur cet appareil. Exportez-les régulièrement (vers Fichiers, iCloud ou WhatsApp).</p><div class="btns"><button class="btn pri" data-act="exportJSON">Sauvegarder (envoyer ou enregistrer)</button><button class="btn" data-act="importJSON">Restaurer une sauvegarde</button><button class="btn danger" data-act="wipe">Effacer les données de cet appareil</button></div><p class="mu" style="margin-top:10px">Version '+VERSION+'</p></div>'}
+ if(p==='regles')return back+'<header class="top"><h1>Règles appliquées</h1></header><div class="card">'+RULES+'</div>';
+ const it=(k,ic,t,s)=>'<button class="btn" data-act="plus" data-p="'+k+'" style="text-align:left;min-height:64px"><span style="font-size:20px">'+ic+'</span> <b>'+t+'</b><br><small>'+s+'</small></button>';
+ return '<header class="top"><h1>Plus</h1></header><div class="menu">'+it('sanctions','⚖️','Sanctions','amendes, règlements, annulations')+it('depenses','🧾','Dépenses','à prévoir, réglées, recettes, transferts')+it('collation','🍽️','Collation','AG physiques, dettes, retenues')+it('rapprochement','🏛️','Rapprochement','relevés bancaires, frais')+it('params','⚙️','Paramètres','cotisation, taux, barème, membres')+it('sauvegarde','💾','Sauvegarde','export / import')+it('regles','📖','Règles appliquées','à valider avec l’AG')+it('test','✅','Fiche de test','pour le trésorier : tester, puis donner son avis')+'</div>'}
+function vParams(){
+ const P=S.params;
+ const n=(k,l,v,h)=>'<div class="f"><label>'+l+'</label><input data-p="'+k+'" type="number" inputmode="decimal" step="any" value="'+v+'">'+(h?'<small>'+h+'</small>':'')+'</div>';
+ return '<div class="card">'+n('cotisation','Cotisation mensuelle (F)',P.cotisation)+n('penalite','Pénalité par mois de retard (F)',P.penalite,'= 50 % de la cotisation (art. 21)')+n('taux','Taux d’intérêt mensuel (%)',P.taux*100,'Décision de l’AG')+n('duree','Durée par défaut d’un crédit (mois)',P.duree)+n('collation','Collation par membre (F)',P.collation)+n('reserve','Réserve minimale (%)',P.reserve*100)+
+ '<div class="f"><label>Premier mois de suivi des cotisations</label><input data-p="debutSuivi" type="month" value="'+P.debutSuivi+'"></div>'+
+ '<h3>Ouverture (soldes au '+fd(S.ouverture.date)+')</h3><div class="f"><label>Date d’ouverture</label><input data-o="date" type="date" value="'+S.ouverture.date+'"></div>'+POCHES.map(p=>'<div class="f"><label>'+p.nom+' (F)</label><input data-o="'+p.id+'" type="number" inputmode="numeric" value="'+S.ouverture[p.id]+'"></div>').join('')+
+ '<h3>Barème des sanctions</h3>'+S.bareme.map(b=>'<div class="f"><label>'+esc(b.motif)+' (F)</label><input data-b="'+b.id+'" type="number" inputmode="numeric" value="'+b.montant+'"></div>').join('')+
+ '<h3>Membres</h3>'+S.membres.map(m=>'<div class="f"><label>Nom</label><input data-m="'+m.id+'" type="text" value="'+esc(m.nom)+'"></div>').join('')+
+ '<p class="mu">Les paramètres s’appliquent à tout le calcul, y compris aux mois déjà passés.</p></div>'}
+
+/* ======================= Envoi, fiche de test ======================= */
+async function deliver(name,text,type){
+ try{const f=new File([text],name,{type});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return 'share'}}catch(e){if(e&&e.name==='AbortError')return 'abort'}
+ download(name,text,type);return 'download'}
+async function shareText(text){
+ try{if(navigator.share){await navigator.share({text});return 'share'}}catch(e){if(e&&e.name==='AbortError')return 'abort'}
+ try{await navigator.clipboard.writeText(text);return 'copy'}catch(e){}
+ return 'none'}
+const TEST=[
+ ['A','Essai libre sur données fictives (on peut tout essayer)',[
+  ['a1','Installer l’app sur l’écran d’accueil (Partager → Sur l’écran d’accueil), puis l’ouvrir'],
+  ['a2','Saisir une cotisation, un remboursement ventilé (capital / intérêts) et un nouveau crédit'],
+  ['a3','Changer la date « au » (écran État) et vérifier l’intérêt ajouté à la date butoir'],
+  ['a4','Corriger puis annuler une écriture (Journal)'],
+  ['a5','Saisir un relevé (Plus → Rapprochement) et enregistrer l’écart'],
+  ['a6','Générer le message WhatsApp et le fichier de situation'],
+  ['a7','Faire une sauvegarde, puis la restaurer'],
+  ['a8','Tourner le téléphone : portrait et paysage restent lisibles'],
+  ['a9','Fermer puis rouvrir l’app ; l’essayer en mode avion'],
+  ['a10','Ouvrir l’aide « ? » (en haut de chaque écran) et revoir la visite guidée']]],
+ ['B','Vérification sur les vraies données',[
+  ['b1','Quitter la démonstration et importer le fichier de données reçu'],
+  ['b2','Comparer les chiffres à l’état habituel (solde net, crédits, cotisations)'],
+  ['b3','Compléter les cartes « À compléter » (poches d’ouverture, poche et date des mouvements)'],
+  ['b4','Comparer le solde de chaque poche avec la banque et Orange Money'],
+  ['b5','Saisir les premiers mouvements réels'],
+  ['b6','Générer le message WhatsApp réel et le comparer à l’état habituel'],
+  ['b7','Envoyer une sauvegarde au responsable']]]];
+function vTest(){
+ const T=S.test||(S.test={items:{},note:'',avis:''});
+ const tot=TEST.reduce((s,g)=>s+g[2].length,0),ok=TEST.reduce((s,g)=>s+g[2].filter(i=>T.items[i[0]]).length,0);
+ const opt=(v,l)=>'<option value="'+v+'"'+(T.avis===v?' selected':'')+'>'+l+'</option>';
+ return '<div class="card"><p>Cochez chaque point une fois essayé. <b>'+ok+' / '+tot+'</b> faits.</p>'+TEST.map(g=>'<h3>'+g[0]+'. '+g[1]+'</h3>'+g[2].map(i=>'<label class="ck"><input type="checkbox" data-ti="'+i[0]+'"'+(T.items[i[0]]?' checked':'')+'> <span>'+i[1]+'</span></label>').join('')).join('')+
+ '<h3>Remarques</h3><div class="f"><textarea data-tnote="1" rows="4" placeholder="Ce qui est confus, manquant ou faux…">'+esc(T.note)+'</textarea></div>'+
+ '<div class="f"><label>Votre avis</label><select data-tavis="1">'+opt('','— à choisir —')+opt('valide','Validé : prêt pour la présentation aux membres')+opt('reserves','Validé avec réserves (voir remarques)')+opt('refus','Pas prêt')+'</select></div>'+
+ '<div class="btns"><button class="btn pri" data-act="sendTest">Envoyer mon compte rendu</button></div></div>'}
+async function sendTest(){
+ const T=S.test||{items:{},note:'',avis:''};
+ const L=['*Compte rendu de test — Trésorerie AJLEC v'+VERSION+'* ('+fd(todayISO())+')','Avis : '+({valide:'VALIDÉ',reserves:'VALIDÉ AVEC RÉSERVES',refus:'PAS PRÊT'}[T.avis]||'non indiqué'),''];
+ TEST.forEach(g=>{L.push('*'+g[0]+'. '+g[1]+'*');g[2].forEach(i=>L.push((T.items[i[0]]?'✅ ':'⬜ ')+i[1]));L.push('')});
+ L.push('Remarques : '+(T.note||'—'));
+ const r=await shareText(L.join('\n'));
+ toast(r==='copy'?'Compte rendu copié : collez-le dans WhatsApp':r==='none'?'Envoi impossible : notez vos remarques à la main':r==='abort'?'Envoi annulé':'Compte rendu prêt')}
+
+/* ======================= Aide et visite guidée ======================= */
+const TOURKEY='ajlec_treso_tour_v1';
+function tourSeen(){try{return localStorage.getItem(TOURKEY)==='1'}catch(e){return true}}
+function markTour(){try{localStorage.setItem(TOURKEY,'1')}catch(e){}}
+const TOUR=[
+ ['Bienvenue','Cette application suit la trésorerie de l’association : cotisations, crédits, sanctions et dépenses. Tout reste sur ce téléphone. Visite en 5 étapes.'],
+ ['L’écran État','Il montre le solde net en caisse, les 3 poches (Orange Money, compte courant, compte épargne), le taux de liquidité et les alertes. Changez la date « au » pour voir la situation à un autre jour.'],
+ ['Saisir : le bouton +','Le bouton « + Saisie », au centre de la barre, ouvre tous les formulaires : cotisation, remboursement, crédit, sanction, dépense… Chaque formulaire explique ce qui va se passer avant d’enregistrer.'],
+ ['Une erreur ? Corriger','Rien ne s’efface : le Journal garde tout. Juste après un enregistrement, touchez « Corriger » dans le message. Plus tard : Journal → la ligne → Corriger. La ligne est annulée et le formulaire se rouvre pré-rempli.'],
+ ['Partager et sauvegarder','Depuis l’écran État, envoyez le message WhatsApp ou le fichier de situation aux membres. Plus → Sauvegarde : faites une sauvegarde chaque semaine. Le bouton « ? » en haut de chaque écran rouvre l’aide.']];
+function openTour(i){
+ i=i||0;const t=TOUR[i],last=i===TOUR.length-1;
+ const dots=TOUR.map((x,k)=>'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 3px;background:'+(k===i?'var(--pr)':'var(--bd)')+'"></span>').join('');
+ $('#sheet').innerHTML='<div class="sheetbox" role="dialog" aria-modal="true"><div class="sheethead"><h2>'+t[0]+'</h2><span class="mu">'+(i+1)+' / '+TOUR.length+'</span></div><div class="sheetbody"><p style="font-size:17px;line-height:1.5">'+t[1]+'</p><p style="text-align:center;margin-top:18px">'+dots+'</p></div><div class="sheetfoot">'+(i?'<button class="btn" data-act="tour" data-i="'+(i-1)+'">Précédent</button>':'<button class="btn" data-act="tourEnd">Passer</button>')+'<button class="btn pri" data-act="'+(last?'tourEnd':'tour')+'" data-i="'+(i+1)+'">'+(last?'Terminer':'Suivant')+'</button></div></div>';
+ $('#sheet').classList.add('open');SH=null}
+const HELP=[
+ ['lire','Comprendre l’écran État',['Le bandeau vert donne le solde net en caisse (total des 3 poches : Orange Money, compte courant, compte épargne) et le taux de liquidité.','« Solde à terme » = caisse + crédits à récupérer (capital + intérêts dus).','Changez la date « au » pour voir la situation à un autre jour : les intérêts des dates butoir s’ajoutent automatiquement.','🟠 = intérêt échu non réglé · 🔴 = échéance du crédit dépassée · ⛔ Suspendu = cotisation échue impayée (vote et crédit).']],
+ ['cotisation','Saisir une cotisation',['Touchez « + Saisie » → Cotisation.','Choisissez le membre, la date du versement et le montant (80.000 F par mois ; plusieurs mois d’un coup sont acceptés).','Le cadre vert indique jusqu’à quel mois le membre est couvert.','Notez la référence OM ou virement, puis Enregistrer.']],
+ ['remb','Enregistrer un remboursement de crédit',['« + Saisie » → Remboursement (ou Crédits → le crédit → Remboursement).','Répartissez le versement : part capital, part intérêts, part sanctions. Le cadre vert rappelle le capital restant et les intérêts dus à cette date.','Un remboursement fait jusqu’à la date butoir réduit l’intérêt de ce mois-là.','Le total encaissé entre dans la poche choisie.']],
+ ['credit','Accorder un crédit',['« + Saisie » → Nouveau crédit.','Indiquez le membre, la date, le capital, la poche qui décaisse, le taux (2 %) et l’échéance finale (par défaut 10 mois, modifiable si l’AG a validé plus long).','Ajoutez la référence de la décision. L’app signale, sans bloquer, un membre suspendu ou qui a déjà un crédit.','Une collation due peut être retenue sur le crédit : une décision d’AG est alors obligatoire.']],
+ ['rachat','Racheter un crédit',['Crédits → le crédit → Rachat.','Saisissez le nouveau capital : il doit couvrir la dette de l’ancien crédit (capital + intérêts dus).','Le membre reçoit la différence ; le nouveau crédit repart sans intérêt cumulé, avec une nouvelle échéance.']],
+ ['corriger','Corriger ou annuler une erreur',['Juste après un enregistrement, un message « Corriger » reste affiché quelques secondes : touchez-le.','Plus tard : onglet Journal → la ligne → Corriger (ou Annuler). Corriger existe aussi dans la fiche d’un membre et dans le détail d’un crédit.','Corriger annule la ligne (elle reste visible, barrée) et ouvre le formulaire pré-rempli : modifiez, puis Enregistrer.','Rien ne s’efface jamais : c’est ce qui garantit la confiance de tous.']],
+ ['sanction','Enregistrer ou régler une sanction',['Plus → Sanctions.','« Nouvelle sanction » : choisissez dans le barème (retard 5.000 F, absence virtuelle 10.000 F, absence physique 25.000 F) ou saisissez un motif libre.','« Régler » quand le membre paie. La pénalité de cotisation (40.000 F par mois en retard) est automatique.','« Annuler (décision AG) » si l’AG accepte un justificatif.']],
+ ['depense','Dépenses et dépenses à prévoir',['Plus → Dépenses.','« Dépense à prévoir » alimente la liste des engagements, qui réduit le « solde net après engagements ».','Quand c’est payé, touchez « Payer » sur la ligne : la dépense est enregistrée dans la poche choisie.','Cochez « Visée » une fois le visa du président ou du commissaire aux comptes obtenu.']],
+ ['releve','Frais bancaires : saisir un relevé',['Plus → Rapprochement → Saisir un relevé.','Indiquez la poche, la date et le solde réel lu sur le relevé (ou dans Orange Money).','L’app affiche l’écart avec son propre solde ; « Enregistrer l’écart » le transforme en frais (écart négatif) ou en intérêts (écart positif).']],
+ ['partage','Envoyer l’état aux membres',['Écran État → « Message WhatsApp » → « Copier le message », puis collez-le dans le groupe.','« Fichier de situation (lecture seule) » produit une page avec l’état et la fiche de chaque membre, à envoyer par WhatsApp.']],
+ ['sauvegarde','Sauvegarder et restaurer',['Plus → Sauvegarde → « Sauvegarder » : envoyez le fichier à vous-même (WhatsApp, Fichiers, iCloud).','Faites-le chaque semaine : les données sont uniquement sur ce téléphone.','« Restaurer une sauvegarde » remplace toutes les données par celles du fichier choisi.']]];
+function openHelp(){
+ const cur={etat:'lire',membres:'cotisation',credits:'remb',journal:'corriger',plus:'sauvegarde'}[U.tab];
+ $('#sheet').innerHTML='<div class="sheetbox" role="dialog" aria-modal="true"><div class="sheethead"><h2>Aide</h2><button class="btn" data-act="closeSheet">Fermer</button></div><div class="sheetbody"><div class="btns" style="margin-top:0"><button class="btn pri" data-act="tour" data-i="0">Revoir la visite guidée</button></div>'+HELP.map(h=>'<details'+(h[0]===cur?' open':'')+'><summary>'+h[1]+'</summary><ol class="rules">'+h[2].map(s=>'<li>'+s+'</li>').join('')+'</ol></details>').join('')+'<p class="mu">Version '+VERSION+'</p></div></div>';
+ $('#sheet').classList.add('open');SH=null}
+
+/* ======================= Formulaires ======================= */
+const FLD={
+ date:(n,l,v)=>'<div class="f"><label for="'+n+'">'+l+'</label><input id="'+n+'" name="'+n+'" type="date" value="'+esc(v)+'"></div>',
+ num:(n,l,v,h)=>'<div class="f"><label for="'+n+'">'+l+'</label><input id="'+n+'" name="'+n+'" type="number" inputmode="numeric" min="0" step="1" value="'+(v===''||v==null?'':v)+'">'+(h?'<small>'+h+'</small>':'')+'</div>',
+ txt:(n,l,v,h)=>'<div class="f"><label for="'+n+'">'+l+'</label><input id="'+n+'" name="'+n+'" type="text" value="'+esc(v)+'">'+(h?'<small>'+h+'</small>':'')+'</div>',
+ sel:(n,l,o,v,dyn)=>'<div class="f"><label for="'+n+'">'+l+'</label><select id="'+n+'" name="'+n+'"'+(dyn?' data-dyn="1"':'')+'>'+o.map(x=>'<option value="'+esc(x[0])+'"'+(x[0]===v?' selected':'')+'>'+esc(x[1])+'</option>').join('')+'</select></div>',
+ chk:(n,l,v)=>'<label class="ck"><input type="checkbox" name="'+n+'"'+(v?' checked':'')+'> '+l+'</label>'};
+const optM=ex=>S.membres.filter(b=>b.id!==ex).map(b=>[b.id,b.nom]);
+const optP=()=>POCHES.map(p=>[p.id,p.nom]);
+const hb=(t,c)=>'<div class="hintbox'+(c?' '+c:'')+'">'+t+'</div>';
+const FAR='9999-12-31';
+const openCredits=d=>calcCredits(d||U.asOf).filter(c=>c.ouvert);
+function collCheck(v){
+ const dues=collations(FAR).filter(c=>c.debiteur===v.membre&&c.statut==='due');
+ if(!dues.length)return '';
+ const sel=v.collationIds||[];
+ return '<div class="f"><label>Collations dues à retenir sur ce crédit</label>'+dues.map(c=>'<label class="ck"><input type="checkbox" data-multi="1" name="collationIds" value="'+esc(c.cid)+'"'+(sel.includes(c.cid)?' checked':'')+'> '+fmt(c.montant)+' — AG du '+fd(c.date)+' — hôte '+esc(memNom(c.hote))+'</label>').join('')+'</div>'+FLD.txt('refCol','Décision d’AG autorisant la retenue (obligatoire si cochée)',v.refCol||'')}
+function retenue(v){const dues=collations(FAR);return(v.collationIds||[]).map(id=>dues.find(c=>c.cid===id)).filter(Boolean)}
+
+const FORMS={
+ cotisation:pre=>({title:'Cotisation',
+  init:()=>({date:pre.date||U.asOf,membre:pre.membre||S.membres[0].id,montant:pre.montant!=null?pre.montant:S.params.cotisation,poche:pre.poche||'om',ref:pre.ref||''}),
+  body:v=>FLD.date('date','Date du versement',v.date)+FLD.sel('membre','Membre',optM(),v.membre)+FLD.num('montant','Montant (F)',v.montant)+FLD.sel('poche','Poche',optP(),v.poche)+FLD.txt('ref','Référence / preuve (OM, virement)',v.ref),
+  hint:v=>{const tot=cotCum(v.membre,FAR)+(+v.montant||0),n=Math.floor(tot/S.params.cotisation),r=tot-n*S.params.cotisation;
+   return hb(n>0?'Après ce versement, '+esc(memNom(v.membre))+' est couvert jusqu’à <b>'+mLabel(addKey(S.params.debutSuivi,n-1))+'</b> ('+n+' mois depuis '+mLabel(S.params.debutSuivi)+'), reste '+fmt(r)+'.':'Aucun mois complet couvert (cumul '+fmt(tot)+').')+(v.date&&v.date<S.ouverture.date?hb('Date avant l’ouverture ('+fd(S.ouverture.date)+') : l’argent est déjà dans le solde initial, aucun effet sur les poches.','wa'):'')},
+  save:v=>{if(!v.date)return{err:'Indiquez la date.'};if(!(v.montant>0))return{err:'Indiquez un montant.'};return{ev:[{t:'cotisation',date:v.date,membre:v.membre,montant:+v.montant,poche:v.poche,ref:v.ref}]}}}),
+ remboursement:pre=>({title:'Remboursement de crédit',
+  init:()=>({date:pre.date||U.asOf,creditId:pre.creditId||pre.credit||(openCredits()[0]||{}).id||'',capital:pre.capital!=null?pre.capital:'',interets:pre.interets!=null?pre.interets:'',sanctions:pre.sanctions!=null?pre.sanctions:'',poche:pre.poche||'om',ref:pre.ref||''}),
+  body:v=>FLD.sel('creditId','Crédit',openCredits().map(c=>[c.id,memNom(c.membre)+' — capital '+fmt(c.capital)]),v.creditId)+FLD.date('date','Date du versement',v.date)+FLD.num('capital','Part capital (F)',v.capital)+FLD.num('interets','Part intérêts (F)',v.interets)+FLD.num('sanctions','Part sanctions (F)',v.sanctions)+FLD.sel('poche','Poche',optP(),v.poche)+FLD.txt('ref','Référence / preuve',v.ref),
+  hint:v=>{const c=calcCredits(v.date||U.asOf).find(x=>x.id===v.creditId);if(!c)return hb('Aucun crédit en cours à cette date.','wa');
+   const t=(+v.capital||0)+(+v.interets||0)+(+v.sanctions||0);
+   return hb('À la date indiquée : capital restant <b>'+fmt(c.capital)+'</b> · intérêts dus <b>'+fmt(c.intDu)+'</b> · sanctions dues '+fmt(dueSanc(c.membre,v.date||U.asOf))+'.<br>Total encaissé : <b>'+fmt(t)+'</b>.')},
+  save:v=>{const c=calcCredits(v.date||U.asOf).find(x=>x.id===v.creditId);if(!c)return{err:'Choisissez un crédit en cours.'};
+   const cap=+v.capital||0,int=+v.interets||0,san=+v.sanctions||0;
+   if(cap+int+san<=0)return{err:'Saisissez au moins un montant.'};
+   if(c.src.t==='credit_report'&&v.date<c.start)return{err:'Ce crédit est repris à la date de l’état ('+fd(c.start)+') : saisissez une date à partir de ce jour.'};
+   if(cap>c.capital)return{err:'La part capital dépasse le capital restant ('+fmt(c.capital)+').'};
+   if(int>c.intDu)return{err:'La part intérêts dépasse les intérêts dus ('+fmt(c.intDu)+').'};
+   if(san>dueSanc(c.membre,v.date))return{err:'La part sanctions dépasse les sanctions dues ('+fmt(dueSanc(c.membre,v.date))+').'};
+   return{ev:[{t:'remboursement',date:v.date,creditId:c.id,membre:c.membre,capital:cap,interets:int,sanctions:san,poche:v.poche,ref:v.ref}]}}}),
+ remboursement_report:pre=>({title:'Remboursement non ventilé (report)',
+  init:()=>({date:pre.date||U.asOf,membre:pre.membre||S.membres[0].id,montant:pre.montant!=null?pre.montant:'',poche:pre.poche||'om',libelle:pre.libelle||'Remboursement crédit (report, non ventilé)'}),
+  body:v=>FLD.date('date','Date',v.date)+FLD.sel('membre','Membre',optM(),v.membre)+FLD.num('montant','Montant encaissé (F)',v.montant)+FLD.sel('poche','Poche',optP(),v.poche)+FLD.txt('libelle','Libellé',v.libelle),
+  save:v=>{if(!v.date||!(v.montant>0))return{err:'Date et montant obligatoires.'};return{ev:[{t:'remboursement_report',date:v.date,membre:v.membre,montant:+v.montant,poche:v.poche,libelle:v.libelle}]}}}),
+ credit:pre=>({title:'Nouveau crédit',
+  init:()=>({date:pre.date||U.asOf,membre:pre.membre||S.membres[0].id,capital:pre.capital!=null?pre.capital:'',poche:pre.poche||'courant',taux:pre.taux!=null?+(pre.taux*100).toFixed(2):S.params.taux*100,echeance:pre.echeanceFinale||'',refAG:pre.refAG||'',collationIds:pre.collationIds||[],refCol:pre.refCol||''}),
+  body:v=>FLD.sel('membre','Membre',optM(),v.membre,true)+FLD.date('date','Date d’octroi',v.date)+FLD.num('capital','Capital accordé (F)',v.capital)+FLD.sel('poche','Poche de décaissement',optP(),v.poche)+FLD.num('taux','Taux mensuel (%)',v.taux)+
+   '<div class="f"><label for="echeance">Échéance finale</label><input id="echeance" name="echeance" type="date" value="'+esc(v.echeance||addMonths(v.date,S.params.duree))+'"'+(v.echeance?'':' data-auto="1"')+'><small>Par défaut : octroi + '+S.params.duree+' mois. À modifier si l’AG a validé une autre durée.</small></div>'+FLD.txt('refAG','Décision (AG / Bureau) — référence ou date',v.refAG,'Plafond et durée sont fixés par l’AG ; aucune limite n’est imposée par l’app.'),
+  dyn:v=>{const st=memStat(v.membre,v.date||U.asOf);let h='';
+   if(st.cr.length)h+=hb('⚠ '+esc(memNom(v.membre))+' a déjà un crédit en cours (art. 25-6). Pour le remplacer, utilisez « Rachat ».','wa');
+   if(st.susp)h+=hb('⛔ '+esc(memNom(v.membre))+' est suspendu (cotisation échue impayée, art. 21).','wa');
+   return h+collCheck(v)},
+  hint:v=>{const R=retenue(v),tot=R.reduce((s,c)=>s+c.montant,0),net=(+v.capital||0)-tot;
+   let t='Montant versé au membre : <b>'+fmt(net)+'</b>';
+   if(tot){const byH={};R.forEach(c=>{byH[c.hote]=(byH[c.hote]||0)+c.montant});t+='<br>Collation retenue : '+fmt(tot)+' → reversée à '+Object.keys(byH).map(h=>esc(memNom(h))+' ('+fmt(byH[h])+')').join(', ')}
+   return hb(t)},
+  save:v=>{if(!v.date||!(v.capital>0))return{err:'Date et capital obligatoires.'};const ech=v.echeance||addMonths(v.date,S.params.duree);if(ech<=v.date)return{err:'L’échéance finale doit être après l’octroi.'};
+   const R=retenue(v),tot=R.reduce((s,c)=>s+c.montant,0);if(tot&&!(v.refCol||'').trim())return{err:'Retenue de collation : indiquez la décision d’AG qui l’autorise.'};
+   if(tot>v.capital)return{err:'La retenue dépasse le capital.'};
+   return{ev:[{t:'credit_octroi',creditId:'C'+Date.now().toString(36),date:v.date,membre:v.membre,capital:+v.capital,taux:(+v.taux||0)/100,poche:v.poche,echeanceFinale:ech,refAG:v.refAG,collationIds:v.collationIds||[],retenueCollation:tot,refCol:v.refCol||'',reversements:R.map(c=>({hote:c.hote,montant:c.montant}))}]}}}),
+ rachat:pre=>({title:'Rachat de crédit',
+  init:()=>({date:pre.date||U.asOf,creditId:pre.creditId||pre.credit||(openCredits()[0]||{}).id||'',capital:'',poche:'courant',echeance:'',refAG:''}),
+  body:v=>FLD.sel('creditId','Crédit à racheter',openCredits().map(c=>[c.id,memNom(c.membre)+' — dû '+fmt(c.capital+c.intDu)]),v.creditId)+FLD.date('date','Date du rachat',v.date)+FLD.num('capital','Nouveau capital (F)',v.capital)+FLD.sel('poche','Poche de décaissement',optP(),v.poche)+
+   '<div class="f"><label for="echeance">Échéance finale du nouveau crédit</label><input id="echeance" name="echeance" type="date" value="'+esc(v.echeance||addMonths(v.date,S.params.duree))+'"'+(v.echeance?'':' data-auto="1"')+'></div>'+FLD.txt('refAG','Décision (AG / Bureau)',v.refAG),
+  hint:v=>{const c=calcCredits(v.date||U.asOf).find(x=>x.id===v.creditId);if(!c)return '';const dette=c.capital+c.intDu,net=(+v.capital||0)-dette;
+   return hb('Dette de l’ancien crédit à la date du rachat : capital '+fmt(c.capital)+' + intérêts '+fmt(c.intDu)+' = <b>'+fmt(dette)+'</b>.<br>Montant versé au membre : <b>'+fmt(net)+'</b>. Le nouveau crédit part de '+fmt(+v.capital||0)+', sans intérêt cumulé.',net<0?'wa':'')},
+  save:v=>{const c=calcCredits(v.date||U.asOf).find(x=>x.id===v.creditId);if(!c)return{err:'Choisissez un crédit.'};const dette=c.capital+c.intDu;
+   if(!(v.capital>0)||v.capital<dette)return{err:'Le nouveau capital doit couvrir la dette de l’ancien crédit ('+fmt(dette)+').'};
+   if(c.src.t==='credit_report'&&v.date<c.start)return{err:'Date antérieure à la reprise du crédit ('+fd(c.start)+').'};
+   const ech=v.echeance||addMonths(v.date,S.params.duree),g='G'+Date.now().toString(36);
+   return{ev:[{t:'rachat_cloture',grp:g,date:v.date,creditId:c.id,membre:c.membre,capital:c.capital,interets:c.intDu},{t:'credit_octroi',grp:g,creditId:'C'+Date.now().toString(36),date:v.date,membre:c.membre,capital:+v.capital,taux:S.params.taux,poche:v.poche,echeanceFinale:ech,refAG:v.refAG,retenueRachat:dette,collationIds:[],retenueCollation:0}]}}}),
+ sanction:pre=>({title:'Sanction',
+  init:()=>({date:pre.date||U.asOf,membre:pre.membre||S.membres[0].id,motif:pre.motifId||'libre',montant:pre.montant!=null?pre.montant:'',libre:pre.motif&&!pre.motifId?pre.motif:'',refAG:pre.refAG||''}),
+  change:(n,v)=>{if(n==='motif'){const b=S.bareme.find(x=>x.id===v.motif);v.montant=b?b.montant:''}},
+  body:v=>FLD.date('date','Date',v.date)+FLD.sel('membre','Membre',optM(),v.membre)+FLD.sel('motif','Motif',S.bareme.map(b=>[b.id,b.motif+' — '+fmt(b.montant)]).concat([['libre','Autre (saisie libre)']]),v.motif,true),
+  dyn:v=>(v.motif==='libre'?FLD.txt('libre','Motif (libre)',v.libre):'')+FLD.num('montant','Montant (F)',v.montant)+FLD.txt('refAG','Décision d’AG — référence ou date',v.refAG),
+  save:v=>{const b=S.bareme.find(x=>x.id===v.motif);const mo=b?b.motif:(v.libre||'').trim();if(!mo)return{err:'Indiquez le motif.'};if(!(v.montant>0))return{err:'Indiquez le montant.'};
+   return{ev:[{t:'sanction',date:v.date,membre:v.membre,motif:mo,montant:+v.montant,source:b?'barème':'libre',refAG:v.refAG}]}}}),
+ sanction_reglement:pre=>({title:'Règlement de sanctions',
+  init:()=>({date:pre.date||U.asOf,membre:pre.membre||S.membres[0].id,montant:pre.montant!=null?pre.montant:'',poche:pre.poche||'om'}),
+  body:v=>FLD.date('date','Date',v.date)+FLD.sel('membre','Membre',optM(),v.membre)+FLD.num('montant','Montant payé (F)',v.montant)+FLD.sel('poche','Poche',optP(),v.poche),
+  hint:v=>hb('Sanctions dues par '+esc(memNom(v.membre))+' : <b>'+fmt(dueSanc(v.membre,v.date||U.asOf))+'</b>.'),
+  save:v=>{if(!(v.montant>0))return{err:'Indiquez le montant.'};if(v.montant>dueSanc(v.membre,v.date||U.asOf))return{err:'Montant supérieur aux sanctions dues ('+fmt(dueSanc(v.membre,v.date||U.asOf))+').'};return{ev:[{t:'sanction_reglement',date:v.date,membre:v.membre,montant:+v.montant,poche:v.poche}]}}}),
+ sanction_annulation:pre=>({title:'Annuler une sanction (décision AG)',
+  init:()=>({membre:pre.membre||S.membres[0].id,cible:pre.cible||'',motif:pre.motif||'Voyage hors Cameroun (justificatif)',refAG:pre.refAG||''}),
+  body:v=>FLD.sel('membre','Membre',optM(),v.membre,true),
+  dyn:v=>{const L=sanctions(U.asOf).filter(i=>i.membre===v.membre&&i.statut!=='annulée');
+   return FLD.sel('cible','Sanction à annuler',L.map(i=>[i.id,fd(i.date)+' — '+i.motif+' — '+fmt(i.montant)]),v.cible||(L[0]||{}).id)+FLD.sel('motif','Justificatif retenu',[['Voyage hors Cameroun (justificatif)','Voyage hors Cameroun (justificatif)'],['Maladie avec hospitalisation (justificatif)','Maladie avec hospitalisation (justificatif)'],['Autre décision de l’AG','Autre décision de l’AG']],v.motif)+FLD.txt('refAG','Décision d’AG — référence ou date',v.refAG)},
+  save:v=>{if(!v.cible)return{err:'Aucune sanction à annuler pour ce membre.'};return{ev:[{t:'sanction_annulation',date:todayISO()>U.asOf?todayISO():U.asOf,membre:v.membre,cible:v.cible,motif:v.motif,refAG:v.refAG}]}}}),
+ depense:pre=>({title:pre.engId?'Payer une dépense prévue':'Dépense',
+  init:()=>({date:pre.date||U.asOf,poche:pre.poche||'courant',libelle:pre.libelle||'',montant:pre.montant!=null?pre.montant:'',vise:!!pre.vise,engId:pre.engId||''}),
+  body:v=>FLD.date('date','Date',v.date)+FLD.sel('poche','Payée depuis',optP(),v.poche)+FLD.txt('libelle','Libellé',v.libelle)+FLD.num('montant','Montant (F)',v.montant)+FLD.chk('vise','Visée par le président / commissaire aux comptes',v.vise),
+  save:v=>{if(!v.libelle.trim()||!(v.montant>0))return{err:'Libellé et montant obligatoires.'};return{ev:[{t:'depense',date:v.date,poche:v.poche,libelle:v.libelle.trim(),montant:+v.montant,vise:!!v.vise,engId:v.engId||''}]}}}),
+ engagement:pre=>({title:'Dépense à prévoir',
+  init:()=>({date:pre.date||U.asOf,libelle:pre.libelle||'',montant:pre.montant!=null?pre.montant:''}),
+  body:v=>FLD.date('date','Date',v.date)+FLD.txt('libelle','Libellé',v.libelle)+FLD.num('montant','Montant prévu (F)',v.montant),
+  save:v=>{if(!v.libelle.trim()||!(v.montant>0))return{err:'Libellé et montant obligatoires.'};return{ev:[{t:'engagement',date:v.date,libelle:v.libelle.trim(),montant:+v.montant}]}}}),
+ recette:pre=>({title:'Autre recette',
+  init:()=>({date:pre.date||U.asOf,poche:pre.poche||'epargne',libelle:pre.libelle||'',montant:pre.montant!=null?pre.montant:''}),
+  body:v=>FLD.date('date','Date',v.date)+FLD.sel('poche','Poche',optP(),v.poche)+FLD.txt('libelle','Libellé (intérêts bancaires, don…)',v.libelle)+FLD.num('montant','Montant (F)',v.montant),
+  save:v=>{if(!v.libelle.trim()||!(v.montant>0))return{err:'Libellé et montant obligatoires.'};return{ev:[{t:'recette',date:v.date,poche:v.poche,libelle:v.libelle.trim(),montant:+v.montant}]}}}),
+ transfert:pre=>({title:'Transfert entre poches',
+  init:()=>({date:pre.date||U.asOf,de:pre.de||'courant',vers:pre.vers||'epargne',montant:pre.montant!=null?pre.montant:''}),
+  body:v=>FLD.date('date','Date',v.date)+FLD.sel('de','De',optP(),v.de)+FLD.sel('vers','Vers',optP(),v.vers)+FLD.num('montant','Montant (F)',v.montant),
+  save:v=>{if(v.de===v.vers)return{err:'Choisissez deux poches différentes.'};if(!(v.montant>0))return{err:'Indiquez le montant.'};return{ev:[{t:'transfert',date:v.date,de:v.de,vers:v.vers,montant:+v.montant}]}}}),
+ collation_ag:pre=>({title:'AG physique — collation',
+  init:()=>({date:pre.date||U.asOf,hote:pre.hote||S.membres[0].id,montant:pre.montant!=null?pre.montant:S.params.collation,debiteurs:pre.debiteurs||[]}),
+  body:v=>FLD.date('date','Date de l’AG',v.date)+FLD.sel('hote','Membre hôte (reçoit les 10 000 F en espèces)',optM(),v.hote,true)+FLD.num('montant','Montant par membre (F)',v.montant),
+  dyn:v=>'<div class="f"><label>Membres qui n’ont PAS payé ce jour-là</label>'+S.membres.filter(b=>b.id!==v.hote).map(b=>'<label class="ck"><input type="checkbox" data-multi="1" name="debiteurs" value="'+b.id+'"'+((v.debiteurs||[]).includes(b.id)?' checked':'')+'> '+esc(b.nom)+'</label>').join('')+'</div>',
+  save:v=>{if(!(v.debiteurs||[]).length)return{err:'Cochez au moins un membre (sinon, rien à suivre).'};return{ev:[{t:'collation_ag',date:v.date,hote:v.hote,montant:+v.montant,debiteurs:v.debiteurs.filter(d=>d!==v.hote)}]}}}),
+ collation_payee:pre=>({title:'Collation payée en espèces',
+  init:()=>({date:pre.date||U.asOf,cible:pre.cible||''}),
+  body:v=>{const L=collations(FAR).filter(c=>c.statut==='due');return FLD.sel('cible','Dette',L.length?L.map(c=>[c.cid,memNom(c.debiteur)+' → '+memNom(c.hote)+' — '+fmt(c.montant)+' ('+fd(c.date)+')']):[['','Aucune dette'] ],v.cible)+FLD.date('date','Date du paiement',v.date)},
+  save:v=>{if(!v.cible)return{err:'Aucune dette sélectionnée.'};return{ev:[{t:'collation_payee',date:v.date,cible:v.cible}]}}}),
+ releve:pre=>({title:'Relevé bancaire / OM',
+  init:()=>({date:pre.date||U.asOf,poche:pre.poche||'courant',soldeReel:pre.soldeReel!=null?pre.soldeReel:''}),
+  body:v=>FLD.date('date','Date du relevé',v.date)+FLD.sel('poche','Poche',optP(),v.poche)+FLD.num('soldeReel','Solde réel (F)',v.soldeReel),
+  hint:v=>{if(!v.date||v.soldeReel==='')return '';const c=soldes(v.date)[v.poche],e=(+v.soldeReel)-c;return hb('Solde calculé par l’app : <b>'+fmt(c)+'</b> · écart : <b>'+(e>0?'+':'')+fmt(e)+'</b>',e?'wa':'')},
+  save:v=>{if(v.soldeReel===''||v.soldeReel==null)return{err:'Indiquez le solde réel.'};return{ev:[{t:'releve',date:v.date,poche:v.poche,soldeReel:+v.soldeReel}]}}}),
+ annuler:pre=>({title:'Annuler une écriture',
+  init:()=>({motif:''}),
+  body:v=>{const e=S.journal.find(x=>x.id===pre.id),d=desc(e);return '<p>Vous allez annuler : <b>'+esc(d.ti)+'</b> du '+fd(e.date)+'.</p><p class="mu">La ligne reste visible dans le journal, marquée « annulée ».</p>'+FLD.txt('motif','Motif de l’annulation',v.motif)},
+  save:v=>{if(!v.motif.trim())return{err:'Indiquez le motif.'};const e=S.journal.find(x=>x.id===pre.id);return{ev:group(e).map(x=>({t:'annulation',cible:x.id,motif:v.motif.trim(),date:todayISO()>U.asOf?todayISO():U.asOf}))}}})
+};
+const T2F={cotisation:'cotisation',remboursement:'remboursement',remboursement_report:'remboursement_report',credit_octroi:'credit',sanction:'sanction',sanction_reglement:'sanction_reglement',sanction_annulation:'sanction_annulation',depense:'depense',engagement:'engagement',recette:'recette',transfert:'transfert',collation_ag:'collation_ag',collation_payee:'collation_payee',releve:'releve'};
+const MENU=[['Cotisations et crédits',[['cotisation','💰','Cotisation'],['remboursement','↩️','Remboursement'],['credit','🏦','Nouveau crédit'],['rachat','🔁','Rachat de crédit']]],
+ ['Sanctions',[['sanction','⚖️','Sanction'],['sanction_reglement','✅','Règlement de sanction'],['sanction_annulation','🕊️','Annulation (AG)']]],
+ ['Dépenses et autres',[['depense','🧾','Dépense'],['engagement','🗓️','Dépense à prévoir'],['recette','➕','Autre recette'],['transfert','🔄','Transfert entre poches']]],
+ ['Collation et banque',[['collation_ag','🍽️','AG physique'],['collation_payee','🍽️','Collation payée'],['releve','🏛️','Relevé bancaire'],['remboursement_report','📌','Remboursement non ventilé']]]];
+
+let SH=null;
+function openMenu(){
+ $('#sheet').innerHTML='<div class="sheetbox" role="dialog" aria-modal="true"><div class="sheethead"><h2>Nouvelle saisie</h2><button class="btn" data-act="closeSheet">Fermer</button></div><div class="sheetbody">'+MENU.map(g=>'<h3 style="margin-top:6px">'+g[0]+'</h3><div class="menu">'+g[1].map(i=>'<button class="btn" data-act="form" data-type="'+i[0]+'">'+i[1]+' '+i[2]+'</button>').join('')+'</div>').join('')+'</div></div>';
+ $('#sheet').classList.add('open');SH=null}
+function openForm(type,pre,corr){
+ const def=FORMS[type](pre||{});SH={type,def,vals:def.init(),corr:corr||null};sheetRender()}
+function sheetRender(){
+ const d=SH.def,v=SH.vals;
+ $('#sheet').innerHTML='<div class="sheetbox" role="dialog" aria-modal="true"><div class="sheethead"><h2>'+d.title+(SH.corr?' <small>(correction)</small>':'')+'</h2><button class="btn" data-act="closeSheet">Fermer</button></div><div class="sheetbody"><form id="f" autocomplete="off" onsubmit="return false">'+d.body(v)+'<div id="dyn">'+(d.dyn?d.dyn(v):'')+'</div><div id="hint">'+(d.hint?d.hint(v):'')+'</div></form><div id="err" class="err"></div></div><div class="sheetfoot"><button class="btn" data-act="closeSheet">Annuler</button><button class="btn pri" data-act="saveSheet">Enregistrer</button></div></div>';
+ $('#sheet').classList.add('open')}
+function readVals(){
+ const v={};$$('#f [name]').forEach(el=>{const n=el.name;
+  if(el.type==='checkbox'){if(el.dataset.multi){v[n]=v[n]||[];if(el.checked)v[n].push(el.value)}else v[n]=el.checked}
+  else if(el.type==='number')v[n]=el.value===''?'':Number(el.value);else v[n]=el.value});
+ return v}
+function closeSheet(){$('#sheet').classList.remove('open');$('#sheet').innerHTML='';SH=null}
+function commit(evs,corr){
+ if(corr)group(corr).forEach(x=>pushEv({t:'annulation',cible:x.id,motif:'Correction',date:todayISO()>U.asOf?todayISO():U.asOf}));
+ let md=U.asOf;const made=[];evs.forEach(o=>{made.push(pushEv(o));if(o.date&&o.date>md&&o.t!=='annulation')md=o.date});
+ U.asOf=md;save();closeSheet();render();
+ const one=(made.length===1&&made[0].t!=='annulation'&&T2F[made[0].t])?made[0].id:null;
+ toast(made.length&&made[0].t==='annulation'?'Écriture annulée':'Enregistré',one)}
+function onFormEvent(ev){
+ if(!SH||!SH.def||!ev.target.closest('#f'))return;
+ const el=ev.target,prev=SH.vals,v=readVals();
+ ['collationIds','debiteurs'].forEach(k=>{if(!(k in v)&&$('#f [name="'+k+'"]')===null&&prev[k])v[k]=prev[k]});
+ Object.keys(prev).forEach(k=>{if(!(k in v))v[k]=prev[k]});
+ SH.vals=v;
+ if(el.name==='echeance')el.removeAttribute('data-auto');
+ if(el.name==='date'){const ec=$('#echeance');if(ec&&ec.dataset.auto)ec.value=addMonths(v.date||todayISO(),S.params.duree)}
+ if(ev.type==='change'&&el.dataset.dyn){if(SH.def.change)SH.def.change(el.name,v);
+  $('#dyn').innerHTML=SH.def.dyn?SH.def.dyn(v):'';
+  if(el.name==='motif'||SH.def.change){/* le montant se trouve dans #dyn */}}
+ if(SH.def.hint)$('#hint').innerHTML=SH.def.hint(v)}
+document.addEventListener('input',onFormEvent);
+document.addEventListener('change',onFormEvent);
+
+/* ======================= Actions ======================= */
+function toast(m,act){const t=$('#toast');t.innerHTML='<span>'+esc(m)+'</span>'+(act?'<button class="tbtn" data-act="corriger" data-id="'+act+'">Corriger</button>':'');t.style.display='flex';t.style.alignItems='center';clearTimeout(toast.h);toast.h=setTimeout(()=>{t.style.display='none'},act?9000:2600)}
+function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function situationHTML(asOf){
+ const E=etat(asOf),css=$('style').textContent;
+ return '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Situation AJLEC au '+fd(asOf)+'</title><style>'+css+'#app{padding:12px 16px 40px;max-width:900px;margin:0 auto}nav,.fab{display:none}</style></head><body><main id="app"><h1>AJLEC — Situation au '+fd(asOf)+'</h1><p class="mu">Document en lecture seule généré par le trésorier.</p>'+
+ '<div class="hero"><small>Solde net en caisse</small><div class="num big">'+fmt(E.net)+'</div><small>Taux de liquidité : '+Math.round(E.liq*100)+' %</small></div><div class="grid3">'+POCHES.map(p=>'<div class="card pc '+p.id+'"><span>'+p.nom+'</span><span class="num">'+fmt(E.sd[p.id])+'</span></div>').join('')+'</div>'+
+ '<div class="card"><div class="rw"><span>Crédits en cours</span><span class="num">'+fmt(E.creances)+'</span></div><div class="rw"><b>Solde à terme</b><span class="num">'+fmt(E.aTerme)+'</span></div><div class="rw"><span>Dépenses à prévoir</span><span class="num">'+fmt(E.engTot)+'</span></div></div><h2 style="margin-top:16px">Fiches des membres</h2><div class="grid">'+S.membres.map(b=>memCard(b,asOf,false)).join('')+'</div></main></body></html>'}
+const ACT={
+ tab:d=>{U.tab=d.tab;U.membre=null;U.credit=null;U.plus=null;render();scrollTo(0,0)},
+ membre:d=>{U.membre=d.id;render();scrollTo(0,0)},
+ credit:d=>{U.tab='credits';U.credit=d.id;render();scrollTo(0,0)},
+ plus:d=>{U.plus=d.p;render();scrollTo(0,0)},
+ back:()=>{if(U.tab==='membres')U.membre=null;else if(U.tab==='credits')U.credit=null;else U.plus=null;render();scrollTo(0,0)},
+ menu:()=>openMenu(),
+ form:d=>{openForm(d.type,d.credit?{creditId:d.credit}:{})},
+ closeSheet:()=>closeSheet(),
+ saveSheet:()=>{if(!SH)return;const v=readVals();Object.keys(SH.vals).forEach(k=>{if(!(k in v))v[k]=SH.vals[k]});
+  if(SH.def.dyn&&SH.vals.collationIds&&!('collationIds' in v))v.collationIds=SH.vals.collationIds;
+  const r=SH.def.save(v);if(r.err){$('#err').textContent=r.err;return}commit(r.ev,SH.corr)},
+ corriger:d=>{$('#toast').style.display='none';const e=S.journal.find(x=>x.id===d.id);openForm(T2F[e.t],Object.assign({},e,{motifId:e.source==='barème'?(S.bareme.find(b=>b.motif===e.motif)||{}).id:''}),e)},
+ annuler:d=>openForm('annuler',{id:d.id}),
+ payeng:d=>{const e=S.journal.find(x=>x.id===d.id);openForm('depense',{libelle:e.libelle,montant:e.montant,engId:e.id})},
+ ecart:d=>{const e=S.journal.find(x=>x.id===d.id),ec=e.soldeReel-soldes(e.date)[e.poche];
+  if(ec<0)openForm('depense',{date:e.date,poche:e.poche,libelle:'Frais bancaires (écart du relevé du '+fd(e.date)+')',montant:-ec});
+  else openForm('recette',{date:e.date,poche:e.poche,libelle:'Intérêts / écart du relevé du '+fd(e.date),montant:ec})},
+ wa:()=>{const t=waText(U.asOf);$('#wabox').innerHTML='<div class="card"><h2>Message WhatsApp</h2><pre class="wa" id="watext">'+esc(t)+'</pre><div class="btns"><button class="btn pri" data-act="copywa">Copier le message</button></div></div>';$('#wabox').scrollIntoView({behavior:'smooth'})},
+ copywa:()=>{const t=waText(U.asOf);const ok=()=>toast('Message copié');
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,()=>toast('Copie impossible : sélectionnez le texte'));
+  else{const r=document.createRange();r.selectNodeContents($('#watext'));const s=getSelection();s.removeAllRanges();s.addRange(r);try{document.execCommand('copy');ok()}catch(e){toast('Sélectionnez le texte puis copiez')}}},
+ situation:async()=>{const r=await deliver('Situation-AJLEC-'+U.asOf+'.html',situationHTML(U.asOf),'text/html');if(r!=='abort')toast('Fichier de situation prêt')},
+ exportJSON:async()=>{const r=await deliver('Tresorerie-AJLEC-sauvegarde-'+todayISO()+'.json',JSON.stringify(S,null,1),'application/json');if(r!=='abort'){S.lastBackup=Date.now();save();render();toast('Sauvegarde prête')}},
+ importJSON:()=>$('#imp').click(),
+ wipe:()=>{if(confirm('Effacer TOUTES les données de cet appareil ? Faites d’abord une sauvegarde.')&&confirm('Dernière confirmation : cette action est définitive.')){S=null;try{localStorage.removeItem(KEY)}catch(e){}render()}},
+ startDemo:()=>{S=demo();save();U.asOf=defaultAsOf();U.tab='etat';render()},
+ quitDemo:()=>{if(confirm('Quitter la démonstration et effacer ces données fictives ?')){S=null;try{localStorage.removeItem(KEY)}catch(e){}render()}},
+ todoDone:d=>{const t=(S.todo||[]).find(x=>x.id===d.id);if(t){t.done=true;save();render()}},
+ sendTest:()=>sendTest(),
+ help:()=>openHelp(),
+ tour:d=>openTour(+d.i),
+ tourEnd:()=>closeSheet()};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;if(e.target.closest('#sheet')&&b.dataset.act==='closeSheet'||true){const a=ACT[b.dataset.act];if(a)a(b.dataset,b)}});
+$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet()});
+function importText(txt){try{const o=JSON.parse(txt);if(!o.journal||!o.params)throw 0;if(!S||confirm('Remplacer toutes les données actuelles par ce fichier ?')){S=o;save();U.asOf=defaultAsOf();U.tab='etat';U.membre=null;U.credit=null;U.plus=null;render();toast('Données importées')}}catch(x){toast('Fichier invalide')}}
+$('#imp').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{importText(r.result);e.target.value=''};r.readAsText(f)});
+document.addEventListener('change',e=>{
+ const t=e.target;
+ if(t.id==='asof'){U.asOf=t.value||defaultAsOf();render();return}
+ if(t.id==='jall'){U.jf.all=t.checked;render();return}
+ if(t.dataset.p){const k=t.dataset.p;let v=t.value;if(k==='taux'||k==='reserve')v=Number(v)/100;else if(k!=='debutSuivi')v=Number(v);S.params[k]=v;save();toast('Paramètre enregistré')}
+ if(t.dataset.o){const k=t.dataset.o;S.ouverture[k]=k==='date'?t.value:Number(t.value);save();toast('Ouverture enregistrée')}
+ if(t.dataset.b){const b=S.bareme.find(x=>x.id===t.dataset.b);b.montant=Number(t.value);save();toast('Barème enregistré')}
+ if(t.dataset.m){const m=S.membres.find(x=>x.id===t.dataset.m);m.nom=t.value;save();toast('Nom enregistré')}
+ if(t.dataset.ti){S.test=S.test||{items:{},note:'',avis:''};S.test.items[t.dataset.ti]=t.checked;save();render()}
+ if(t.dataset.tnote){S.test=S.test||{items:{},note:'',avis:''};S.test.note=t.value;save()}
+ if(t.dataset.tavis){S.test=S.test||{items:{},note:'',avis:''};S.test.avis=t.value;save()}});
+document.addEventListener('input',e=>{if(e.target.id==='jq'){U.jf.q=e.target.value;const L=(()=>{const canc=cancelledSet(),q=U.jf.q.toLowerCase();let l=S.journal.slice().sort((a,b)=>cmp(b,a));if(!U.jf.all)l=l.filter(x=>!canc.has(x.id)&&x.t!=='annulation');if(q)l=l.filter(x=>{const d=desc(x);return(d.ti+' '+d.de+' '+memNom(x.membre)).toLowerCase().includes(q)});return l})();$('#jl').innerHTML=L.map(x=>journalRow(x,true)).join('')||'<p class="mu">Aucune écriture.</p>'}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#sheet').classList.contains('open'))closeSheet()});
+if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
+render();
+</script>
+</body>
+</html>
