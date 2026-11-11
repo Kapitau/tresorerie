@@ -42,6 +42,8 @@ nav#nav button.add .pl{display:flex;align-items:center;justify-content:center;wi
 .ban .btn{margin:6px 0 0 0}
 .alert.todo{background:var(--pr2);color:var(--tx);border:1px solid var(--pr)}
 .ck{align-items:flex-start;padding:7px 0}
+body.lecture [data-act=menu],body.lecture [data-act=form],body.lecture [data-act=corriger],body.lecture [data-act=annuler],body.lecture [data-act=payeng],body.lecture [data-act=ecart],body.lecture [data-act=wa],body.lecture [data-act=situation]{display:none!important}
+.ban.lecture{background:var(--pr2);color:var(--tx);border:1px solid var(--pr)}
 .helpbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--pr);background:var(--card);color:var(--pr);font:inherit;font-size:18px;font-weight:700;margin-left:10px;vertical-align:middle;cursor:pointer;padding:0}
 .helpbtn::after{content:'';position:absolute;inset:-6px}
 .tbtn{margin-left:12px;min-height:44px;padding:0 14px;border-radius:10px;border:1.5px solid #fff;background:transparent;color:#fff;font:inherit;font-weight:700;cursor:pointer}
@@ -125,7 +127,8 @@ ul.rules{padding-left:20px;margin:6px 0}ul.rules li{margin:6px 0}
 'use strict';
 /* ======================= Utilitaires ======================= */
 const KEY='ajlec_treso_v1';
-const VERSION='1.0.3';
+const VERSION='1.0.4';
+const BLOQUE_LECTURE=['menu','form','corriger','annuler','payeng','ecart','exportJSON','startDemo','demoFromSave','quitDemo','sendTest','todoDone','wa','situation','copyBackup','copyLecture'];
 const STASH='ajlec_treso_v1_reel';
 function hasStash(){try{return !!localStorage.getItem(STASH)}catch(e){return false}}
 const POCHES=[{id:'om',nom:'Orange Money'},{id:'courant',nom:'Compte courant'},{id:'epargne',nom:'Compte épargne'}];
@@ -168,7 +171,7 @@ function demo(){
 function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);if(donneesValides(o))return o}}catch(e){}return null}
 let S=load();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Sauvegarde locale impossible : exportez vos données')}}
-const defaultAsOf=()=>{const t=todayISO();if(!S)return t;return t>S.params.dateEtat?t:S.params.dateEtat};
+const defaultAsOf=()=>{const t=todayISO();if(!S)return t;if(S.lecture&&S.lectureAu)return S.lectureAu;return t>S.params.dateEtat?t:S.params.dateEtat};
 const pushEv=o=>{S.seq=(S.seq||0)+1;const e=Object.assign({id:'e'+S.seq,ts:Date.now()+S.seq},o);S.journal.push(e);return e};
 const memNom=id=>(S.membres.find(m=>m.id===id)||{nom:id||''}).nom;
 const cmp=(a,b)=>a.date<b.date?-1:a.date>b.date?1:a.ts-b.ts;
@@ -329,21 +332,23 @@ const IC={
  journal:'<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
  plus:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>'};
 const NAV=[['etat','État'],['membres','Membres'],['saisie','Saisie'],['credits','Crédits'],['journal','Journal'],['plus','Plus']];
-function renderNav(){$('#nav').innerHTML=NAV.map(n=>n[0]==='saisie'?'<button class="add" data-act="menu" aria-label="Nouvelle saisie"><span class="pl">＋</span>Saisie</button>':'<button data-act="tab" data-tab="'+n[0]+'" class="'+(U.tab===n[0]?'on':'')+'" aria-label="'+n[1]+'"><svg viewBox="0 0 24 24">'+IC[n[0]]+'</svg>'+n[1]+'</button>').join('')}
+function renderNav(){$('#nav').innerHTML=NAV.filter(n=>!(S&&S.lecture&&n[0]==='saisie')).map(n=>n[0]==='saisie'?'<button class="add" data-act="menu" aria-label="Nouvelle saisie"><span class="pl">＋</span>Saisie</button>':'<button data-act="tab" data-tab="'+n[0]+'" class="'+(U.tab===n[0]?'on':'')+'" aria-label="'+n[1]+'"><svg viewBox="0 0 24 24">'+IC[n[0]]+'</svg>'+n[1]+'</button>').join('')}
 function banner(){
  let h='';
  if(S.demo)h+='<div class="ban"><b>DONNÉES FICTIVES D’EXEMPLE</b> — pour essayer l’application sans risque.'+(hasStash()?' Vos vraies données sont mises de côté.':'')+' <button class="btn sm" data-act="quitDemo">Quitter la démonstration</button></div>';
+ if(S.lecture)h+='<div class="ban lecture"><b>MODE CONSULTATION</b> — lecture seule. Situation au '+fd(S.lectureAu||S.params.dateEtat)+(S.lectureLe?' (envoyée par le trésorier le '+fd(S.lectureLe.slice(0,10))+')':'')+'. <button class="btn sm" data-act="pasteOpen">Mettre à jour</button></div>';
  return h}
 function renderWelcome(){
  $('#nav').innerHTML='';
  $('#app').innerHTML='<div class="card" style="margin-top:20px"><h1>Trésorerie AJLEC</h1><p>Bienvenue. Cet appareil ne contient encore aucune donnée.</p><div class="btns"><button class="btn pri" data-act="pasteOpen">Coller le texte des données</button></div><p class="mu">Les données vous sont envoyées séparément et en privé, dans un long message de texte : copiez-le, puis collez-le ici. Elles restent sur cet appareil : pensez à les sauvegarder régulièrement.</p><p class="mu">Version '+VERSION+'</p></div>'}
 function render(){
- if(!S){renderWelcome();return}
+ if(!S){document.body.classList.remove('lecture');renderWelcome();return}
+ document.body.classList.toggle('lecture',!!S.lecture);
  const v={etat:vEtat,membres:vMembres,credits:vCredits,journal:vJournal,plus:vPlus}[U.tab];
  $('#app').innerHTML=banner()+v();
  const hh=$('#app .top h1');if(hh)hh.insertAdjacentHTML('beforeend','<button class="helpbtn" data-act="help" aria-label="Aide">?</button>');
  renderNav();
- if(!tourSeen()){markTour();setTimeout(()=>openTour(0),80)}}
+ if(!S.lecture&&!tourSeen()){markTour();setTimeout(()=>openTour(0),80)}}
 const cotChip=x=>{
  if(x.st==='ok')return x.adv?'<span class="chip ok">✅✅ Payé + avance</span>':'<span class="chip ok">✅ Payé</span>';
  if(x.st==='retard_paye')return '<span class="chip wa">Payé en retard</span>';
@@ -366,7 +371,7 @@ function vEtat(){
  const nk=moisList(U.asOf).find(x=>x.deadline>=U.asOf);
  if(nk)al+='<div class="alert ok">📅 Prochaine date limite de cotisation : <b>'+fdl(nk.deadline)+'</b> ('+mLabel(nk.key)+').</div>';
  (S.todo||[]).filter(t=>!t.done).forEach(t=>{al+='<div class="alert todo"><b>À compléter</b> — '+esc(t.txt)+'<br><button class="btn sm" style="margin-top:6px" data-act="todoDone" data-id="'+t.id+'">C’est fait</button></div>'});
- if(!S.lastBackup||Date.now()-S.lastBackup>7*864e5)al+='<div class="alert">💾 Pensez à sauvegarder vos données (Plus → Sauvegarde).</div>';
+ if(!S.lecture&&(!S.lastBackup||Date.now()-S.lastBackup>7*864e5))al+='<div class="alert">💾 Pensez à sauvegarder vos données (Plus → Sauvegarde).</div>';
  const poches=POCHES.map(p=>'<div class="card pc '+p.id+'"><span>'+p.nom+'</span><span class="num">'+fmt(E.sd[p.id])+'</span></div>').join('');
  const cot=ms.map(x=>{const mo=monthsAdv(x.st.months),y=mo.find(k=>k.key===cm.key);return '<div class="rw"><div><b>'+esc(x.b.nom)+'</b></div><div>'+cotChip(y)+'</div></div>'}).join('');
  const cred=E.ouverts.length?E.ouverts.map(c=>'<div class="rw"><div>'+c.icon+' <b>'+esc(memNom(c.membre))+'</b><div class="mu">capital '+fmt(c.capital)+' · intérêt dû '+fmt(c.intDu)+'</div></div><div class="num">'+fmt(c.capital+c.intDu)+'</div></div>').join(''):'<p class="mu">Aucun crédit en cours.</p>';
@@ -491,11 +496,13 @@ function vPlus(){
   (L.map(e=>{const calc=soldes(e.date)[e.poche],ec=e.soldeReel-calc;return '<div class="card jr"><div class="jh"><span class="ic">🏛️</span><div class="jb"><b>'+pNom(e.poche)+'</b><div class="mu">relevé du '+fd(e.date)+'</div><div class="mu">réel '+fmt(e.soldeReel)+' · calculé '+fmt(calc)+'</div></div><div style="text-align:right"><div class="num '+(ec<0?'neg':ec>0?'pos':'')+'">'+(ec>0?'+':'')+fmt(ec)+'</div>'+(ec?'<button class="btn sm" data-act="ecart" data-id="'+e.id+'">Enregistrer l’écart</button>':'<span class="chip ok">conforme</span>')+'</div></div></div>'}).join('')||'<p class="mu">Aucun relevé saisi.</p>')}
  if(p==='test')return back+'<header class="top"><h1>Fiche de test</h1></header>'+vTest();
  if(p==='params')return back+'<header class="top"><h1>Paramètres</h1></header>'+vParams();
+ if(p==='sauvegarde'&&S.lecture){
+  return back+'<header class="top"><h1>Mise à jour</h1></header><div class="card"><p>Situation au <b>'+fd(S.lectureAu||S.params.dateEtat)+'</b>.</p><p class="mu">Quand le trésorier poste une nouvelle situation dans le groupe : touchez longuement le message, choisissez Copier, puis « Coller la nouvelle situation ».</p><div class="btns"><button class="btn pri" data-act="pasteOpen">Coller la nouvelle situation</button><button class="btn danger" data-act="wipe">Effacer les données de cet appareil</button></div><p class="mu" style="margin-top:10px">Version '+VERSION+'</p></div>'}
  if(p==='sauvegarde'){
-  return back+'<header class="top"><h1>Sauvegarde</h1></header><div class="card"><p>Dernière sauvegarde : <b>'+(S.lastBackup?new Date(S.lastBackup).toLocaleString('fr-FR'):'jamais')+'</b></p><p class="mu">Les données sont stockées sur cet appareil. Exportez-les régulièrement (vers Fichiers, iCloud ou WhatsApp).</p><div class="btns"><button class="btn pri" data-act="exportJSON">Sauvegarder (envoyer ou enregistrer)</button><button class="btn" data-act="pasteOpen">Restaurer en collant le texte</button><button class="btn danger" data-act="wipe">Effacer les données de cet appareil</button></div><details style="margin-top:12px"><summary>Options avancées</summary><div class="btns"><button class="btn" data-act="importJSON">Restaurer une sauvegarde (fichier)</button><button class="btn" data-act="demoFromSave">Essayer avec des données fictives</button></div><p class="mu">Les données fictives servent à s’entraîner sans risque : vos vraies données sont mises de côté et reviennent avec « Quitter la démonstration ».</p></details><p class="mu" style="margin-top:10px">Version '+VERSION+'</p></div>'}
+  return back+'<header class="top"><h1>Sauvegarde</h1></header><div class="card"><p>Dernière sauvegarde : <b>'+(S.lastBackup?new Date(S.lastBackup).toLocaleString('fr-FR'):'jamais')+'</b></p><p class="mu">Les données sont stockées sur cet appareil. Exportez-les régulièrement (vers Fichiers, iCloud ou WhatsApp).</p><div class="btns"><button class="btn pri" data-act="exportJSON">Sauvegarder (envoyer ou enregistrer)</button><button class="btn" data-act="copyBackup">Copier la sauvegarde (texte)</button><button class="btn" data-act="copyLecture">Copier le texte de consultation (membres)</button><button class="btn" data-act="pasteOpen">Restaurer en collant le texte</button><button class="btn danger" data-act="wipe">Effacer les données de cet appareil</button></div><p class="mu">« Copier la sauvegarde » : pour vous, un texte à garder ou à envoyer à vous-même, que l’on restaure avec « Restaurer en collant le texte ». « Copier le texte de consultation » : à poster dans le groupe ; les membres le collent dans l’app pour voir la situation en lecture seule.</p><details style="margin-top:12px"><summary>Options avancées</summary><div class="btns"><button class="btn" data-act="importJSON">Restaurer une sauvegarde (fichier)</button><button class="btn" data-act="demoFromSave">Essayer avec des données fictives</button></div><p class="mu">Les données fictives servent à s’entraîner sans risque : vos vraies données sont mises de côté et reviennent avec « Quitter la démonstration ».</p></details><p class="mu" style="margin-top:10px">Version '+VERSION+'</p></div>'}
  if(p==='regles')return back+'<header class="top"><h1>Règles appliquées</h1></header><div class="card">'+RULES+'</div>';
  const it=(k,ic,t,s)=>'<button class="btn" data-act="plus" data-p="'+k+'" style="text-align:left;min-height:64px"><span style="font-size:20px">'+ic+'</span> <b>'+t+'</b><br><small>'+s+'</small></button>';
- return '<header class="top"><h1>Plus</h1></header><div class="menu">'+it('sanctions','⚖️','Sanctions','amendes, règlements, annulations')+it('depenses','🧾','Dépenses','à prévoir, réglées, recettes, transferts')+it('collation','🍽️','Collation','AG physiques, dettes, retenues')+it('rapprochement','🏛️','Rapprochement','relevés bancaires, frais')+it('params','⚙️','Paramètres','cotisation, taux, barème, membres')+it('sauvegarde','💾','Sauvegarde','export / import')+it('regles','📖','Règles appliquées','à valider avec l’AG')+it('test','✅','Fiche de test','pour le trésorier : tester, puis donner son avis')+'</div>'}
+ return '<header class="top"><h1>Plus</h1></header><div class="menu">'+it('sanctions','⚖️','Sanctions','amendes, règlements, annulations')+it('depenses','🧾','Dépenses','à prévoir, réglées, recettes, transferts')+it('collation','🍽️','Collation','AG physiques, dettes, retenues')+it('rapprochement','🏛️','Rapprochement','relevés bancaires, frais')+(S.lecture?'':it('params','⚙️','Paramètres','cotisation, taux, barème, membres'))+it('sauvegarde','💾',S.lecture?'Mise à jour':'Sauvegarde',S.lecture?'coller une nouvelle situation':'export, copie en texte')+it('regles','📖','Règles appliquées','à valider avec l’AG')+(S.lecture?'':it('test','✅','Fiche de test','pour le trésorier : tester, puis donner son avis'))+'</div>'}
 function vParams(){
  const P=S.params;
  const n=(k,l,v,h)=>'<div class="f"><label>'+l+'</label><input data-p="'+k+'" type="number" inputmode="decimal" step="any" value="'+v+'">'+(h?'<small>'+h+'</small>':'')+'</div>';
@@ -579,6 +586,7 @@ const HELP=[
  ['partage','Envoyer l’état aux membres',['Écran État → « Message WhatsApp » → « Copier le message », puis collez-le dans le groupe.','« Fichier de situation (lecture seule) » produit une page avec l’état et la fiche de chaque membre, à envoyer par WhatsApp.']],
  ['sauvegarde','Sauvegarder et restaurer',['Plus → Sauvegarde → « Sauvegarder » : envoyez le fichier à vous-même (WhatsApp, Fichiers, iCloud).','Faites-le chaque semaine : les données sont uniquement sur ce téléphone.','« Restaurer en collant le texte » remplace toutes les données par celles d’un texte copié depuis un message. Dans « Options avancées » : restaurer un fichier, ou s’entraîner sur des données fictives (vos vraies données sont mises de côté).']]];
 function openHelp(){
+ if(S&&S.lecture){openHelpLecture();return}
  const cur={etat:'lire',membres:'cotisation',credits:'remb',journal:'corriger',plus:'sauvegarde'}[U.tab];
  $('#sheet').innerHTML='<div class="sheetbox" role="dialog" aria-modal="true"><div class="sheethead"><h2>Aide</h2><button class="btn" data-act="closeSheet">Fermer</button></div><div class="sheetbody"><div class="btns" style="margin-top:0"><button class="btn pri" data-act="tour" data-i="0">Revoir la visite guidée</button></div>'+HELP.map(h=>'<details'+(h[0]===cur?' open':'')+'><summary>'+h[1]+'</summary><ol class="rules">'+h[2].map(s=>'<li>'+s+'</li>').join('')+'</ol></details>').join('')+'<p class="mu">Version '+VERSION+'</p></div></div>';
  $('#sheet').classList.add('open');SH=null}
@@ -593,6 +601,34 @@ function pasteGo(){
  const r=importText(b.value);
  if(r==='ok')closeSheet();
  else if(r==='invalide')$('#pasteerr').textContent='Texte non reconnu : copiez tout le message, du premier « { » jusqu’au dernier « } ».'}
+
+/* ======================= Copie en texte : sauvegarde et consultation ======================= */
+function lectureSnapshot(){
+ const s=JSON.parse(JSON.stringify(S));
+ delete s.test;s.todo=[];s.demo=false;s.lastBackup=null;
+ s.lecture=true;s.lectureAu=U.asOf;s.lectureLe=new Date().toISOString();
+ return JSON.stringify(s)}
+async function copyText(t,msg){
+ if(t.length>60000)toast('Texte très long ('+t.length+' caractères) : WhatsApp pourrait le refuser');
+ try{await navigator.clipboard.writeText(t);toast(msg+' ('+t.length+' caractères)');return true}catch(e){}
+ $('#sheet').innerHTML='<div class="sheetbox" role="dialog" aria-modal="true"><div class="sheethead"><h2>Copier le texte</h2><button class="btn" data-act="closeSheet">Fermer</button></div><div class="sheetbody"><p>La copie automatique n’est pas possible ici. Touchez le texte, « Tout sélectionner », puis « Copier ».</p><div class="f"><textarea id="copybox" rows="8" readonly>'+esc(t)+'</textarea></div></div><div class="sheetfoot"><button class="btn pri" data-act="closeSheet">Terminé</button></div></div>';
+ $('#sheet').classList.add('open');SH=null;setTimeout(()=>{const b=$('#copybox');if(b){b.focus();b.select()}},150);return false}
+async function copyBackup(){
+ if(S.demo){toast('Quittez d’abord la démonstration');return}
+ const ok=await copyText(JSON.stringify(S),'Sauvegarde copiée');
+ if(ok){S.lastBackup=Date.now();save();render()}}
+async function copyLecture(){
+ if(S.demo){toast('Quittez d’abord la démonstration');return}
+ if(S.lecture){toast('Vous êtes en mode consultation');return}
+ await copyText(lectureSnapshot(),'Texte de consultation copié')}
+const HELP_LECTURE=[
+ ['Lire la situation',['L’écran État montre le solde net, les 3 poches, le taux de liquidité et les alertes.','Changez la date « au » pour voir la situation à un autre jour.','« Membres » : la fiche de chacun (cotisations mois par mois, crédit, sanctions). « Crédits » : le calendrier des intérêts. « Journal » : tous les mouvements.']],
+ ['Mettre à jour la situation',['Quand le trésorier poste une nouvelle situation dans le groupe, touchez longuement le message et choisissez Copier.','Dans l’app : Plus → Mise à jour → « Coller la nouvelle situation », puis Importer.']],
+ ['Installer l’app',['iPhone : ouvrir le lien dans Safari → Partager → « Sur l’écran d’accueil ».','Android : menu du navigateur → « Installer l’application » ou « Ajouter à l’écran d’accueil ».']],
+ ['Pourquoi je ne peux rien modifier ?',['Vous êtes en mode consultation : seul le trésorier saisit les opérations. En cas d’erreur, signalez-la au trésorier.']]];
+function openHelpLecture(){
+ $('#sheet').innerHTML='<div class="sheetbox" role="dialog" aria-modal="true"><div class="sheethead"><h2>Aide — consultation</h2><button class="btn" data-act="closeSheet">Fermer</button></div><div class="sheetbody">'+HELP_LECTURE.map((h,i)=>'<details'+(i===0?' open':'')+'><summary>'+h[0]+'</summary><ol class="rules">'+h[1].map(s=>'<li>'+s+'</li>').join('')+'</ol></details>').join('')+'<p class="mu">Version '+VERSION+'</p></div></div>';
+ $('#sheet').classList.add('open');SH=null}
 
 /* ======================= Formulaires ======================= */
 const FLD={
@@ -813,20 +849,25 @@ const ACT={
  tour:d=>openTour(+d.i),
  tourEnd:()=>closeSheet(),
  pasteOpen:()=>openPaste(),
- pasteGo:()=>pasteGo()};
-document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;if(e.target.closest('#sheet')&&b.dataset.act==='closeSheet'||true){const a=ACT[b.dataset.act];if(a)a(b.dataset,b)}});
+ pasteGo:()=>pasteGo(),
+ copyBackup:()=>copyBackup(),
+ copyLecture:()=>copyLecture()};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;if(e.target.closest('#sheet')&&b.dataset.act==='closeSheet'||true){const act=b.dataset.act;if(S&&S.lecture&&BLOQUE_LECTURE.includes(act)){toast('Mode consultation : lecture seule');return}const a=ACT[act];if(a)a(b.dataset,b)}});
 $('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet()});
 function donneesValides(o){return !!(o&&typeof o==='object'&&Array.isArray(o.journal)&&Array.isArray(o.membres)&&Array.isArray(o.bareme)&&o.params&&typeof o.params==='object'&&o.ouverture&&typeof o.ouverture.date==='string'&&['om','courant','epargne'].every(k=>typeof o.ouverture[k]==='number'))}
 function extractJSON(t){t=String(t||'').trim();const a=t.indexOf('{'),b=t.lastIndexOf('}');return a>=0&&b>a?t.slice(a,b+1):t}
 function importText(txt){
  let o;try{o=JSON.parse(extractJSON(txt));if(!donneesValides(o))throw 0}catch(x){toast('Données invalides : vérifiez le fichier ou le texte copié');return 'invalide'}
- if(S&&!confirm('Remplacer toutes les données actuelles par ces données ?'))return 'annule';
+ if(S&&!(S.lecture&&o.lecture)){
+  const q=o.lecture&&!S.lecture?'ATTENTION : ce texte est une situation EN LECTURE SEULE (destinée aux membres). L’importer remplace vos données actuelles par une copie non modifiable. Continuer ?':'Remplacer toutes les données actuelles par ces données ?';
+  if(!confirm(q))return 'annule'}
  S=o;save();try{localStorage.removeItem(STASH)}catch(e){}U.asOf=defaultAsOf();U.tab='etat';U.membre=null;U.credit=null;U.plus=null;render();toast('Données importées');return 'ok'}
 $('#imp').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{importText(r.result);e.target.value=''};r.readAsText(f)});
 document.addEventListener('change',e=>{
  const t=e.target;
  if(t.id==='asof'){U.asOf=t.value||defaultAsOf();render();return}
  if(t.id==='jall'){U.jf.all=t.checked;render();return}
+ if(S&&S.lecture&&(t.dataset.p||t.dataset.o||t.dataset.b||t.dataset.m||t.dataset.ti||t.dataset.tnote||t.dataset.tavis))return;
  if(t.dataset.p){const k=t.dataset.p;let v=t.value;if(k==='taux'||k==='reserve')v=Number(v)/100;else if(k!=='debutSuivi')v=Number(v);S.params[k]=v;save();toast('Paramètre enregistré')}
  if(t.dataset.o){const k=t.dataset.o;S.ouverture[k]=k==='date'?t.value:Number(t.value);save();toast('Ouverture enregistrée')}
  if(t.dataset.b){const b=S.bareme.find(x=>x.id===t.dataset.b);b.montant=Number(t.value);save();toast('Barème enregistré')}
